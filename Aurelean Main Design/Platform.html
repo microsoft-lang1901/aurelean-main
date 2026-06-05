@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The AURELEAN Platform — Operational intelligence layer</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.p-hero{ background:var(--ink); color:var(--on-dk); padding-top:clamp(56px,8vw,92px); }
+.p-hero h1{ font-size:clamp(40px,6vw,90px); max-width:16ch; margin:18px 0 0; }
+.p-hero .lead{ max-width:52ch; margin-top:24px; }
+
+/* layer section */
+.layer-sec{ border-top:1px solid var(--line-lt); }
+.layer-sec:nth-child(even){ background:var(--paper-1); }
+.layer-grid{ display:grid; grid-template-columns:0.85fr 1.15fr; gap:clamp(32px,5vw,80px); align-items:center; }
+.layer-grid.flip .visual{ order:2; }
+.layer-no{ font-family:var(--serif); font-size:clamp(64px,9vw,120px); color:var(--gold); opacity:.32; line-height:.8; }
+.layer-sec h2{ font-size:clamp(30px,3.6vw,50px); margin:6px 0 0; }
+.feat-list{ list-style:none; margin-top:28px; display:flex; flex-direction:column; gap:0; }
+.feat-list li{ display:flex; gap:16px; padding:18px 0; border-top:1px solid var(--line-lt); }
+.feat-list li:last-child{ border-bottom:1px solid var(--line-lt); }
+.feat-list .ic{ width:22px;height:22px;flex:none;color:var(--gold-deep);margin-top:2px; }
+.feat-list b{ font-family:var(--sans); font-weight:600; font-size:14.5px; display:block; margin-bottom:3px; }
+.feat-list span{ font-size:13px; color:var(--on-lt-mut); }
+
+/* visual panels */
+.vpanel{ aspect-ratio:4/3.1; border-radius:6px; position:relative; overflow:hidden; border:1px solid var(--line-lt); background:var(--ink); }
+.vpanel .ph{ position:absolute; inset:0; }
+
+/* mock UI inside panels */
+.uimock{ position:absolute; inset:0; padding:22px; color:var(--on-dk); display:flex; flex-direction:column; gap:12px; background:linear-gradient(160deg,#211d17,#15120d); }
+.uirow{ display:flex; align-items:center; gap:12px; background:rgba(244,240,232,.04); border:1px solid var(--line-dk); border-radius:4px; padding:12px 14px; }
+.uirow .av{ width:30px;height:30px;border-radius:6px;background:linear-gradient(135deg,var(--gold-2),var(--gold-deep));flex:none; }
+.uirow .ln{ height:7px;border-radius:4px;background:rgba(244,240,232,.16); }
+.uibar{ height:8px;border-radius:5px;background:rgba(244,240,232,.1);position:relative;overflow:hidden; }
+.uibar i{ position:absolute;inset:0;width:var(--w,60%);background:linear-gradient(90deg,var(--gold),var(--gold-2));border-radius:5px; }
+.pill{ font-family:var(--mono);font-size:10px;letter-spacing:.06em;padding:4px 9px;border-radius:100px;border:1px solid var(--line-dk);color:var(--on-dk-mut); }
+.pill.g{ color:var(--gold-2);border-color:var(--gold-soft);background:var(--gold-soft); }
+.uigrid2{ display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+.uicard{ background:rgba(244,240,232,.04);border:1px solid var(--line-dk);border-radius:5px;padding:14px; }
+.uicard .big{ font-family:var(--serif);font-size:30px;color:var(--gold-2);line-height:1; }
+.uicard .cap{ font-size:10px;color:var(--on-dk-mut);margin-top:6px; }
+
+@media(max-width:880px){ .layer-grid{ grid-template-columns:1fr; } .layer-grid.flip .visual{ order:0; } }
+</style>
+</head>
+<body data-page="platform">
+<div id="site-nav"></div>
+
+<section class="p-hero">
+  <div class="wrap">
+    <div class="eyebrow on-dk reveal">The AURELEAN Platform</div>
+    <h1 class="reveal">One operating layer for sourcing, intelligence, and orchestration.</h1>
+    <p class="lead reveal">Four composable layers — Trade, Intelligence, AI, and Infrastructure — working as a single system of record and action for global procurement.</p>
+    <div class="flex gap-s reveal" style="margin-top:34px;flex-wrap:wrap">
+      <a href="#trade" class="chip">Trade</a><a href="#intelligence" class="chip">Intelligence</a>
+      <a href="#ai" class="chip">AURELEAN AI</a><a href="#infra" class="chip">Infrastructure</a>
+    </div>
+    <div style="height:clamp(40px,6vw,72px)"></div>
+  </div>
+</section>
+
+<!-- TRADE -->
+<section class="layer-sec section" id="trade">
+  <div class="wrap"><div class="layer-grid">
+    <div class="reveal">
+      <div class="layer-no">01</div>
+      <div class="tag" style="margin-bottom:12px">AURELEAN Trade</div>
+      <h2>Sourcing &amp; supplier operations.</h2>
+      <p class="lead" style="margin-top:18px">A verified marketplace and procurement infrastructure connecting buyers to premium mills, makers, and ateliers.</p>
+      <ul class="feat-list">
+        <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><div><b>Editorial discovery</b><span>Curated, intelligence-rich search across verified suppliers.</span></div></li>
+        <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm10 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM7 8v4a4 4 0 0 0 4 4h6"/></svg><div><b>RFQ orchestration</b><span>Structured requests, side-by-side comparison, audit trail.</span></div></li>
+        <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z"/></svg><div><b>Provenance &amp; compliance</b><span>Traceability and documentation built into every order.</span></div></li>
+      </ul>
+      <a href="Trade.html" class="btn btn-link" style="margin-top:26px">Enter AURELEAN Trade <span class="arr">→</span></a>
+    </div>
+    <div class="visual reveal"><div class="vpanel"><div class="uimock">
+      <div class="flex between center"><span class="pill g">Verified mill</span><span class="pill">RFQ · 4 bids</span></div>
+      <div class="uirow"><div class="av"></div><div style="flex:1;display:flex;flex-direction:column;gap:7px"><div class="ln" style="width:55%"></div><div class="ln" style="width:32%;opacity:.6"></div></div><span class="pill g">€€€</span></div>
+      <div class="uirow"><div class="av"></div><div style="flex:1;display:flex;flex-direction:column;gap:7px"><div class="ln" style="width:48%"></div><div class="ln" style="width:38%;opacity:.6"></div></div><span class="pill">6 wk</span></div>
+      <div class="uirow"><div class="av"></div><div style="flex:1;display:flex;flex-direction:column;gap:7px"><div class="ln" style="width:60%"></div><div class="ln" style="width:28%;opacity:.6"></div></div><span class="pill">5 wk</span></div>
+    </div></div></div>
+  </div></div>
+</section>
+
+<!-- INTELLIGENCE -->
+<section class="layer-sec section" id="intelligence">
+  <div class="wrap"><div class="layer-grid flip">
+    <div class="visual reveal"><div class="vpanel"><div class="uimock">
+      <div class="flex between center"><span class="pill">Supplier index</span><span class="pill g">Live</span></div>
+      <div class="uigrid2">
+        <div class="uicard"><div class="big">94</div><div class="cap">Reliability score</div></div>
+        <div class="uicard"><div class="big">A+</div><div class="cap">Capability tier</div></div>
+      </div>
+      <div class="uicard"><div class="cap" style="margin-top:0;margin-bottom:10px">Capacity utilisation</div>
+        <div class="uibar" style="margin-bottom:8px"><i style="--w:72%"></i></div>
+        <div class="uibar"><i style="--w:46%"></i></div>
+      </div>
+    </div></div></div>
+    <div class="reveal">
+      <div class="layer-no">02</div>
+      <div class="tag" style="margin-bottom:12px">AURELEAN Intelligence</div>
+      <h2>Market &amp; supplier intelligence.</h2>
+      <p class="lead" style="margin-top:18px">Continuous signals on capability, capacity, risk, pricing, and provenance — so every sourcing decision is informed.</p>
+      <ul class="feat-list">
+        <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 19V9M12 19V5M19 19v-7"/></svg><div><b>Supplier scoring</b><span>Reliability, quality, and responsiveness, continuously updated.</span></div></li>
+        <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 12h4l3 7 4-14 3 7h4"/></svg><div><b>Market signals</b><span>Pricing, lead-time, and capacity trends across categories.</span></div></li>
+        <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z"/></svg><div><b>Risk monitoring</b><span>Early warning on disruption, compliance, and concentration.</span></div></li>
+      </ul>
+    </div>
+  </div></div>
+</section>
+
+<!-- AI -->
+<section class="layer-sec section" id="ai">
+  <div class="wrap"><div class="layer-grid">
+    <div class="reveal">
+      <div class="layer-no">03</div>
+      <div class="tag" style="margin-bottom:12px">AURELEAN AI</div>
+      <h2>Agentic orchestration &amp; memory.</h2>
+      <p class="lead" style="margin-top:18px">Agents that recommend, draft, summarise, and execute — grounded in long-context operational memory across every project and supplier.</p>
+      <ul class="feat-list">
+        <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg><div><b>Agentic automation</b><span>Draft RFQs, chase responses, reconcile bids — autonomously.</span></div></li>
+        <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3 3 7.5 12 12l9-4.5L12 3Z"/><path d="M3 12l9 4.5L21 12"/></svg><div><b>Operational memory</b><span>Decisions, specs, and context retained across the lifecycle.</span></div></li>
+        <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg><div><b>Human-in-the-loop</b><span>Every agent action is reviewable, reversible, and governed.</span></div></li>
+      </ul>
+    </div>
+    <div class="visual reveal"><div class="vpanel"><div class="uimock">
+      <span class="pill g" style="align-self:flex-start">Agent · drafting RFQ</span>
+      <div class="uicard"><div style="display:flex;flex-direction:column;gap:8px">
+        <div class="ln" style="width:90%;height:7px;border-radius:4px;background:rgba(244,240,232,.16)"></div>
+        <div class="ln" style="width:76%;height:7px;border-radius:4px;background:rgba(244,240,232,.16)"></div>
+        <div class="ln" style="width:84%;height:7px;border-radius:4px;background:rgba(244,240,232,.16)"></div>
+        <div class="ln" style="width:40%;height:7px;border-radius:4px;background:var(--gold)"></div>
+      </div></div>
+      <div class="flex gap-s"><span class="pill">Approve</span><span class="pill">Edit</span><span class="pill g">Send to 6 mills</span></div>
+    </div></div></div>
+  </div></div>
+</section>
+
+<!-- INFRA -->
+<section class="layer-sec section" id="infra">
+  <div class="wrap"><div class="layer-grid flip">
+    <div class="visual reveal"><div class="vpanel"><div class="uimock">
+      <div class="flex between center"><span class="pill">Integrations</span><span class="pill g">SOC 2 · Type II</span></div>
+      <div class="uigrid2">
+        <div class="uicard"><div class="cap" style="margin-top:0">ERP sync</div><div class="uibar" style="margin-top:10px"><i style="--w:100%"></i></div></div>
+        <div class="uicard"><div class="cap" style="margin-top:0">API uptime</div><div class="big" style="font-size:24px;margin-top:6px">99.98%</div></div>
+      </div>
+      <div class="uirow"><span class="pill">SSO</span><span class="pill">RBAC</span><span class="pill">Audit log</span><span class="pill">Encryption</span></div>
+    </div></div></div>
+    <div class="reveal">
+      <div class="layer-no">04</div>
+      <div class="tag" style="margin-bottom:12px">AURELEAN Infrastructure</div>
+      <h2>Protocols, integrations &amp; security.</h2>
+      <p class="lead" style="margin-top:18px">The protocol-level foundation — connected to your ERP and systems, secured to enterprise standard, built to scale.</p>
+      <ul class="feat-list">
+        <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg><div><b>Integrations</b><span>ERP, PLM, and finance systems connected bidirectionally.</span></div></li>
+        <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z"/></svg><div><b>Enterprise security</b><span>SSO, RBAC, encryption, and full audit trails.</span></div></li>
+        <li><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><div><b>Protocol tooling</b><span>APIs and webhooks for operational orchestration at scale.</span></div></li>
+      </ul>
+    </div>
+  </div></div>
+</section>
+
+<!-- CTA -->
+<section class="dk section" style="text-align:center">
+  <div class="wrap reveal">
+    <div class="eyebrow on-dk">Request access</div>
+    <h2 class="h-xl" style="margin-top:16px;max-width:18ch;margin-inline:auto">Bring the whole platform to your sourcing operation.</h2>
+    <div class="flex center" style="justify-content:center;gap:16px;margin-top:36px;flex-wrap:wrap">
+      <a href="Request-Access.html" class="btn btn-gold">Request Access <span class="arr">→</span></a>
+      <a href="Trade.html" class="btn btn-ghost-dk">Explore Trade <span class="circ-arr">→</span></a>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+<script src="partials.js"></script>
+<script src="site.js"></script>
+<script src="tweaks.js"></script>
+</body>
+</html>

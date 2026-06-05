@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solutions — AURELEAN</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.s-hero{ background:var(--ink); color:var(--on-dk); padding-top:clamp(56px,8vw,92px); }
+.s-hero h1{ font-size:clamp(40px,6vw,86px); max-width:15ch; margin:18px 0 0; }
+.s-hero .lead{ max-width:50ch; margin-top:24px; }
+
+.tabs{ display:flex; gap:8px; margin-top:40px; flex-wrap:wrap; padding-bottom:8px; }
+
+.sol{ display:grid; grid-template-columns:1fr 1fr; gap:clamp(28px,4vw,64px); align-items:center; }
+.sol .visual{ aspect-ratio:5/4; border-radius:6px; overflow:hidden; border:1px solid var(--line-lt); position:relative; }
+.sol .visual .ph{ position:absolute; inset:0; }
+.sol h2{ font-size:clamp(28px,3.4vw,46px); margin:8px 0 0; }
+.sol ul{ list-style:none; margin-top:24px; display:flex; flex-direction:column; gap:14px; }
+.sol li{ display:flex; gap:12px; font-size:14.5px; color:var(--on-lt-mut); }
+.sol li svg{ width:18px;height:18px;color:var(--gold-deep);flex:none;margin-top:2px; }
+@media(max-width:860px){ .sol{ grid-template-columns:1fr; } .sol .visual{ order:-1; } }
+
+.expand{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:48px; }
+.exp-card{ border:1px solid var(--line-lt); border-radius:5px; padding:26px; transition:.35s; }
+.exp-card:hover{ background:var(--paper-1); }
+.exp-card .n{ font-family:var(--mono); font-size:11px; color:var(--gold-deep); }
+.exp-card h4{ font-family:var(--serif); font-size:24px; margin:14px 0 8px; font-weight:500; }
+.exp-card p{ font-size:13px; color:var(--on-lt-mut); }
+@media(max-width:820px){ .expand{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body data-page="solutions">
+<div id="site-nav"></div>
+
+<section class="s-hero">
+  <div class="wrap">
+    <div class="eyebrow on-dk reveal">Solutions</div>
+    <h1 class="reveal">Built first for the most demanding corners of global sourcing.</h1>
+    <p class="lead reveal">AURELEAN begins where quality, provenance, and coordination are non-negotiable — then scales to enterprise procurement infrastructure.</p>
+    <div class="tabs reveal">
+      <a href="#textiles" class="chip on">Luxury Textiles</a>
+      <a href="#furnishings" class="chip">Furnishings</a>
+      <a href="#materials" class="chip">Material Sourcing</a>
+      <a href="#manufacturing" class="chip">Manufacturing</a>
+    </div>
+    <div style="height:clamp(32px,5vw,64px)"></div>
+  </div>
+</section>
+
+<section class="section" id="textiles">
+  <div class="wrap"><div class="sol">
+    <div class="reveal">
+      <div class="tag">Luxury Textiles</div>
+      <h2>Source the world's finest cloth with provenance built in.</h2>
+      <p class="lead" style="margin-top:18px">Connect fashion houses and ateliers to verified mills — with editorial discovery, RFQ orchestration, and traceability from fiber to finished bolt.</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>Verified mill index across wool, silk, cashmere, linen, and cotton</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>Hand-feel, weight, and finish indexed for confident remote sourcing</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>Sampling, lab dips, and approvals coordinated end to end</li>
+      </ul>
+      <a href="Trade.html" class="btn btn-link" style="margin-top:26px">Enter AURELEAN Trade <span class="arr">→</span></a>
+    </div>
+    <div class="visual reveal"><div class="ph" data-label="textile bolts / mill"></div></div>
+  </div></div>
+</section>
+
+<section class="section paper-2" id="furnishings">
+  <div class="wrap"><div class="sol">
+    <div class="visual reveal"><div class="ph lt" data-label="furniture maker / atelier"></div></div>
+    <div class="reveal">
+      <div class="tag">Furnishing Ecosystems</div>
+      <h2>Coordinate sourcing across materials, makers, and ateliers.</h2>
+      <p class="lead" style="margin-top:18px">Orchestrate multi-party furnishing projects — from material selection through maker coordination — on a single operational thread.</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>Unified BOM across textiles, leather, timber, and hardware</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>Maker capacity and lead-time visibility in one place</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>Milestone tracking across the production chain</li>
+      </ul>
+    </div>
+  </div></div>
+</section>
+
+<section class="section" id="materials">
+  <div class="wrap"><div class="sol">
+    <div class="reveal">
+      <div class="tag">Material Sourcing</div>
+      <h2>Match raw and processed materials to spec and standard.</h2>
+      <p class="lead" style="margin-top:18px">Intelligence-led sourcing for materials where grade, origin, and compliance must be exact.</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>Spec-matched supplier shortlists with capability scoring</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>Provenance and certification tracked per lot</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>Risk and concentration monitoring across suppliers</li>
+      </ul>
+    </div>
+    <div class="visual reveal"><div class="ph" data-label="raw material / yarn"></div></div>
+  </div></div>
+</section>
+
+<section class="section paper-2" id="manufacturing">
+  <div class="wrap"><div class="sol">
+    <div class="visual reveal"><div class="ph lt" data-label="production floor"></div></div>
+    <div class="reveal">
+      <div class="tag">Manufacturing Workflows</div>
+      <h2>Track production milestones across the supply chain.</h2>
+      <p class="lead" style="margin-top:18px">From PO to delivery — orchestrate manufacturing workflows with shared status, documents, and accountability.</p>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>Production milestones and QC gates in one timeline</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>Compliance and logistics documents centralised</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>Agentic chase-ups keep every party on schedule</li>
+      </ul>
+    </div>
+  </div></div>
+</section>
+
+<!-- expansion -->
+<section class="dk section">
+  <div class="wrap">
+    <div class="eyebrow on-dk reveal">Long-term expansion</div>
+    <h2 class="h-lg reveal" style="margin-top:14px;max-width:20ch">From luxury sourcing to operational infrastructure for the enterprise.</h2>
+    <div class="expand reveal">
+      <div class="exp-card"><div class="n">→</div><h4>Enterprise Procurement</h4><p>Infrastructure for complex, multi-category enterprise procurement.</p></div>
+      <div class="exp-card"><div class="n">→</div><h4>Operational Orchestration</h4><p>Systems that coordinate operations across teams and partners.</p></div>
+      <div class="exp-card"><div class="n">→</div><h4>Logistics Intelligence</h4><p>Visibility and prediction across movement and fulfilment.</p></div>
+      <div class="exp-card"><div class="n">→</div><h4>Sourcing Analytics</h4><p>Decision analytics across spend, supplier, and category.</p></div>
+      <div class="exp-card"><div class="n">→</div><h4>Workflow Automation</h4><p>Automation infrastructure for repeatable operational work.</p></div>
+      <div class="exp-card"><div class="n">→</div><h4>Protocol Tooling</h4><p>Protocol-level operational tooling for builders and platforms.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="text-align:center">
+  <div class="wrap reveal">
+    <div class="eyebrow">Request access</div>
+    <h2 class="h-xl" style="margin-top:16px;max-width:18ch;margin-inline:auto">Find the right entry point for your operation.</h2>
+    <div class="flex center" style="justify-content:center;gap:16px;margin-top:36px;flex-wrap:wrap">
+      <a href="Request-Access.html" class="btn btn-gold">Request Access <span class="arr">→</span></a>
+      <a href="Platform.html" class="btn btn-ghost-lt">Explore the Platform <span class="circ-arr">→</span></a>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+<script src="partials.js"></script>
+<script src="site.js"></script>
+<script src="tweaks.js"></script>
+</body>
+</html>

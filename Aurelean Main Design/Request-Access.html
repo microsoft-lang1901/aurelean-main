@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request Access — AURELEAN</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.ra{ min-height:calc(100vh - 68px); display:grid; grid-template-columns:1fr 1fr; }
+.ra-left{ background:var(--ink); color:var(--on-dk); padding:clamp(40px,5vw,80px); display:flex; flex-direction:column; position:relative; overflow:hidden; }
+.ra-left .ph{ position:absolute; inset:0; opacity:.32; }
+.ra-left .inner{ position:relative; z-index:2; display:flex; flex-direction:column; height:100%; }
+.ra-left h1{ font-size:clamp(34px,3.6vw,54px); max-width:14ch; margin-top:auto; }
+.ra-left .lead{ max-width:40ch; margin-top:22px; }
+.ra-quotes{ margin-top:40px; display:flex; flex-direction:column; gap:18px; }
+.qt{ border-left:1px solid var(--gold); padding-left:18px; }
+.qt p{ font-family:var(--serif); font-size:19px; line-height:1.4; }
+.qt .who{ font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--on-dk-mut); margin-top:10px; }
+
+.ra-right{ background:var(--paper); padding:clamp(40px,5vw,80px); display:flex; align-items:center; }
+.form{ width:100%; max-width:440px; margin:0 auto; }
+.form .eyebrow{ }
+.form h2{ font-size:clamp(26px,2.6vw,36px); margin:12px 0 0; }
+.form .sub{ color:var(--on-lt-mut); font-size:14px; margin-top:10px; }
+
+.steps-ind{ display:flex; gap:8px; margin:28px 0 4px; }
+.steps-ind .d{ height:3px; flex:1; background:var(--line-lt); border-radius:3px; overflow:hidden; }
+.steps-ind .d i{ display:block; height:100%; width:0; background:var(--gold); transition:.5s var(--ease); }
+.steps-ind .d.on i{ width:100%; }
+
+.fstep{ display:none; }
+.fstep.on{ display:block; animation:fade .4s var(--ease); }
+@keyframes fade{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+.field{ margin-top:18px; }
+.field label{ display:block; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--on-lt-dim); font-family:var(--mono); margin-bottom:8px; }
+.field input,.field select,.field textarea{ width:100%; background:var(--paper-1); border:1px solid var(--line-lt); border-radius:4px; padding:13px 14px; color:var(--on-lt); font-family:var(--sans); font-size:14px; outline:none; transition:.2s; }
+.field input:focus,.field select:focus,.field textarea:focus{ border-color:var(--gold); background:var(--paper); }
+.field textarea{ resize:vertical; min-height:84px; }
+.two{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+.opts{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+.opt{ border:1px solid var(--line-lt); border-radius:4px; padding:14px; cursor:pointer; font-size:13.5px; transition:.25s; display:flex; align-items:center; gap:10px; }
+.opt:hover{ border-color:var(--gold); }
+.opt.on{ border-color:var(--ink); background:var(--ink); color:var(--on-dk); }
+.opt .box{ width:16px;height:16px;border:1px solid currentColor;border-radius:3px;flex:none;display:flex;align-items:center;justify-content:center; }
+.opt.on .box{ background:var(--gold);border-color:var(--gold);color:var(--ink); }
+
+.frow{ display:flex; gap:12px; margin-top:26px; }
+.frow .btn{ flex:1; justify-content:center; }
+
+.done-screen{ text-align:center; padding:30px 0; }
+.done-screen .ck{ width:64px;height:64px;border-radius:50%;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;color:var(--gold-deep); }
+.done-screen h2{ }
+@media(max-width:880px){ .ra{ grid-template-columns:1fr; } .ra-left{ min-height:320px; } }
+</style>
+</head>
+<body data-page="">
+<div id="site-nav"></div>
+
+<div class="ra">
+  <!-- LEFT -->
+  <div class="ra-left">
+    <div class="ph" data-label="atelier / interior"></div>
+    <div class="inner">
+      <a href="Home.html" class="logo" style="color:var(--on-dk)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 3 L21 20 H3 Z"/><path d="M12 10 L16.5 20 H7.5 Z" stroke-opacity=".55"/></svg>AURELEAN
+      </a>
+      <h1>The operating layer for global sourcing is opening.</h1>
+      <p class="lead">Request access to AURELEAN and bring procurement intelligence, supplier orchestration, and agentic automation into one system.</p>
+      <div class="ra-quotes">
+        <div class="qt"><p style="text-align: right">“AURELEAN collapsed six sourcing tools into one operational thread.”</p><div class="who">HEAD OF SOURCING · MAISON</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: multi-step form -->
+  <div class="ra-right">
+    <form class="form" id="ra-form" onsubmit="return false">
+      <div class="eyebrow">Request access</div>
+      <h2 id="step-title">Tell us about you</h2>
+      <p class="sub" id="step-sub" style="font-family: &quot;Segoe UI&quot;">We onboard new organisations in cohorts. Start with a few details.</p>
+
+      <div class="steps-ind">
+        <div class="d on"><i></i></div><div class="d"><i></i></div><div class="d"><i></i></div>
+      </div>
+
+      <!-- step 1 -->
+      <div class="fstep on" data-step="0">
+        <div class="two">
+          <div class="field"><label>First name</label><input type="text" placeholder="Jane"></div>
+          <div class="field"><label>Last name</label><input type="text" placeholder="Okonkwo"></div>
+        </div>
+        <div class="field"><label>Work email</label><input type="email" placeholder="jane@maison.com"></div>
+        <div class="field"><label>Company</label><input type="text" placeholder="Maison name"></div>
+        <div class="frow"><button class="btn btn-gold" data-next>Continue <span class="arr">→</span></button></div>
+      </div>
+
+      <!-- step 2 -->
+      <div class="fstep" data-step="1">
+        <div class="field"><label>What do you source?</label>
+          <div class="opts" data-multi>
+            <div class="opt"><span class="box"></span>Luxury textiles</div>
+            <div class="opt"><span class="box"></span>Furnishings</div>
+            <div class="opt"><span class="box"></span>Materials</div>
+            <div class="opt"><span class="box"></span>Manufacturing</div>
+          </div>
+        </div>
+        <div class="field"><label>Annual sourcing volume</label>
+          <select><option>Under €1M</option><option>€1M – €10M</option><option>€10M – €50M</option><option>€50M+</option></select>
+        </div>
+        <div class="frow"><button class="btn btn-ghost-lt" data-back>Back</button><button class="btn btn-gold" data-next>Continue <span class="arr">→</span></button></div>
+      </div>
+
+      <!-- step 3 -->
+      <div class="fstep" data-step="2">
+        <div class="field"><label>Which layers interest you?</label>
+          <div class="opts" data-multi>
+            <div class="opt"><span class="box"></span>Trade</div>
+            <div class="opt"><span class="box"></span>Intelligence</div>
+            <div class="opt"><span class="box"></span>AURELEAN AI</div>
+            <div class="opt"><span class="box"></span>Infrastructure</div>
+          </div>
+        </div>
+        <div class="field"><label>Anything we should know?</label><textarea placeholder="Tell us about your sourcing operation…"></textarea></div>
+        <div class="frow"><button class="btn btn-ghost-lt" data-back>Back</button><button class="btn btn-gold" data-submit>Request Access <span class="arr">→</span></button></div>
+      </div>
+
+      <!-- done -->
+      <div class="fstep done-screen" data-step="3">
+        <div class="ck"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 13l4 4L19 7"/></svg></div>
+        <h2>Request received</h2>
+        <p class="sub" style="max-width:34ch;margin-left:auto;margin-right:auto">Thank you. The AURELEAN team will be in touch about your cohort within two business days.</p>
+        <a href="Home.html" class="btn btn-ghost-lt" style="margin-top:26px">Back to home</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  var steps = Array.prototype.slice.call(document.querySelectorAll('.fstep'));
+  var dots = Array.prototype.slice.call(document.querySelectorAll('.steps-ind .d'));
+  var titles = [
+    ['Tell us about you','We onboard new organisations in cohorts. Start with a few details.'],
+    ['Your sourcing profile','Help us tailor your AURELEAN environment.'],
+    ['Where to begin','Choose the layers most relevant to your operation.'],
+    ['',''],
+  ];
+  var cur=0;
+  function go(n){
+    steps[cur].classList.remove('on');
+    cur=n; steps[cur].classList.add('on');
+    dots.forEach(function(d,i){ d.classList.toggle('on', i<=Math.min(cur,2)); });
+    var t=titles[cur];
+    document.getElementById('step-title').textContent=t[0];
+    document.getElementById('step-sub').textContent=t[1];
+    document.querySelector('.steps-ind').style.display = cur>2 ? 'none':'flex';
+    if(cur>2){ document.getElementById('step-title').style.display='none'; document.getElementById('step-sub').style.display='none'; }
+  }
+  document.getElementById('ra-form').addEventListener('click', function(e){
+    var o=e.target.closest('.opt');
+    if(o){ o.classList.toggle('on'); return; }
+    if(e.target.closest('[data-next]')) go(cur+1);
+    else if(e.target.closest('[data-back]')) go(cur-1);
+    else if(e.target.closest('[data-submit]')) go(3);
+  });
+})();
+</script>
+<script src="partials.js"></script>
+<script src="site.js"></script>
+<script src="tweaks.js"></script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lanificio Cerruti — AURELEAN Trade</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.crumb{ background:var(--paper); border-bottom:1px solid var(--line-lt); padding-block:14px; }
+.crumb .wrap{ display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--on-lt-mut); font-family:var(--mono); letter-spacing:.04em; }
+.crumb a:hover{ color:var(--on-lt); }
+
+.sup-grid{ display:grid; grid-template-columns:1.15fr .85fr; gap:clamp(28px,4vw,56px); align-items:start; padding-top:clamp(28px,4vw,44px); }
+.gallery{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.gallery .ph{ border-radius:5px; }
+.gallery .g0{ grid-column:span 2; aspect-ratio:16/9; }
+.gallery .g1,.gallery .g2{ aspect-ratio:1/1; }
+
+.sup-head .origin{ display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--on-lt-mut); }
+.sup-head .origin .dot{ width:6px;height:6px;border-radius:50%;background:var(--gold); }
+.sup-head h1{ font-size:clamp(34px,4.4vw,60px); margin:12px 0 0; }
+.vrow{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+.vchip{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-family:var(--mono); letter-spacing:.06em; text-transform:uppercase; color:var(--gold-deep); border:1px solid var(--gold-soft); background:var(--gold-soft); padding:5px 10px; border-radius:100px; }
+
+.score-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line-lt); border:1px solid var(--line-lt); border-radius:5px; overflow:hidden; margin-top:28px; }
+.score{ background:var(--paper); padding:18px 16px; }
+.score .n{ font-family:var(--serif); font-size:34px; color:var(--on-lt); line-height:1; }
+.score .n small{ font-size:15px; color:var(--on-lt-mut); }
+.score .l{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--on-lt-dim); font-family:var(--mono); margin-top:8px; }
+
+.sup-body h3{ font-family:var(--sans); font-weight:600; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--on-lt-dim); margin:36px 0 16px; }
+.mat-table{ width:100%; border-collapse:collapse; }
+.mat-table td{ padding:14px 0; border-top:1px solid var(--line-lt); font-size:14px; vertical-align:top; }
+.mat-table tr:last-child td{ border-bottom:1px solid var(--line-lt); }
+.mat-table .nm{ font-family:var(--serif); font-size:19px; }
+.mat-table .meta{ font-size:12px; color:var(--on-lt-mut); }
+.mat-table .r{ text-align:right; color:var(--on-lt-mut); font-family:var(--mono); font-size:12px; }
+
+/* RFQ panel */
+.rfq{ position:sticky; top:90px; background:var(--ink); color:var(--on-dk); border-radius:6px; padding:26px; }
+.rfq h4{ font-family:var(--serif); font-size:24px; font-weight:500; }
+.rfq .sub{ font-size:12.5px; color:var(--on-dk-mut); margin-top:6px; }
+.field{ margin-top:16px; }
+.field label{ display:block; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--on-dk-dim); font-family:var(--mono); margin-bottom:7px; }
+.field input,.field select,.field textarea{ width:100%; background:var(--ink-2); border:1px solid var(--line-dk); border-radius:4px; padding:11px 13px; color:var(--on-dk); font-family:var(--sans); font-size:13.5px; outline:none; transition:.2s; }
+.field input:focus,.field select:focus,.field textarea:focus{ border-color:var(--gold); }
+.field textarea{ resize:vertical; min-height:64px; }
+.rfq .btn{ width:100%; justify-content:center; margin-top:20px; }
+.rfq .note{ font-size:11px; color:var(--on-dk-dim); text-align:center; margin-top:12px; }
+.rfq-ok{ text-align:center; padding:18px 0; }
+.rfq-ok .ck{ width:46px;height:46px;border-radius:50%;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--gold-2); }
+
+@media(max-width:900px){ .sup-grid{ grid-template-columns:1fr; } .rfq{ position:static; } }
+</style>
+</head>
+<body data-page="trade">
+<div id="site-nav"></div>
+
+<div class="crumb">
+  <div class="wrap"><a href="Trade.html">Trade</a> <span>/</span> <a href="Trade.html">Wool</a> <span>/</span> <span style="color:var(--on-lt)">Lanificio Cerruti</span></div>
+</div>
+
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="sup-grid">
+      <!-- LEFT -->
+      <div>
+        <div class="gallery reveal">
+          <div class="ph g0" data-label="mill — hero"></div>
+          <div class="ph g1" data-label="cloth detail"></div>
+          <div class="ph g2" data-label="loom / process"></div>
+        </div>
+
+        <div class="sup-head reveal" style="margin-top:30px">
+          <div class="origin"><span class="dot"></span>Biella, Italy · IT · Est. 1881</div>
+          <h1>Lanificio Cerruti</h1>
+          <div class="vrow">
+            <span class="vchip"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>AURELEAN Verified</span>
+            <span class="vchip">GOTS</span><span class="vchip">RWS Wool</span><span class="vchip">ISO 9001</span>
+          </div>
+        </div>
+
+        <div class="score-grid reveal">
+          <div class="score"><div class="n">94<small>/100</small></div><div class="l">Reliability</div></div>
+          <div class="score"><div class="n">A+</div><div class="l">Capability tier</div></div>
+          <div class="score"><div class="n">&lt;36<small>h</small></div><div class="l">Avg. RFQ response</div></div>
+        </div>
+
+        <div class="sup-body reveal">
+          <h3>Overview</h3>
+          <p class="lead">A historic Piedmont worsted mill specialising in Super 150s–180s wool, high-twist tropicals, and refined flannels. Vertically integrated from dyeing to finishing, with capacity for both atelier-scale and production runs.</p>
+
+          <h3>Available materials</h3>
+          <table class="mat-table">
+            <tr><td><div class="nm">Super 150s worsted wool</div><div class="meta">240 g/m · Plain &amp; twill · 28 colourways</div></td><td class="r">MOQ 30m<br>Lead 6 wk</td></tr>
+            <tr><td><div class="nm">High-twist tropical wool</div><div class="meta">200 g/m · Open weave · 14 colourways</div></td><td class="r">MOQ 50m<br>Lead 5 wk</td></tr>
+            <tr><td><div class="nm">Brushed flannel</div><div class="meta">340 g/m · Melange · 9 colourways</div></td><td class="r">MOQ 45m<br>Lead 6 wk</td></tr>
+            <tr><td><div class="nm">Wool-silk hopsack</div><div class="meta">260 g/m · Textured · 11 colourways</div></td><td class="r">MOQ 35m<br>Lead 7 wk</td></tr>
+          </table>
+
+          <h3>Capacity &amp; logistics</h3>
+          <p class="lead">Monthly capacity 120,000m. Ships DDP to EU, UK, US, and APAC. Sampling and lab dips coordinated through AURELEAN with shared approval status.</p>
+        </div>
+      </div>
+
+      <!-- RIGHT: RFQ -->
+      <aside>
+        <div class="rfq reveal" id="rfq">
+          <div id="rfq-form">
+            <h4>Request a quote</h4>
+            <p class="sub">Structured RFQ delivered to Cerruti through AURELEAN. Typical response under 36 hours.</p>
+            <div class="field"><label>Material</label>
+              <select><option>Super 150s worsted wool</option><option>High-twist tropical wool</option><option>Brushed flannel</option><option>Wool-silk hopsack</option></select>
+            </div>
+            <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><label>Quantity (m)</label><input type="number" value="120" min="1"></div>
+              <div><label>Target delivery</label><input type="text" placeholder="e.g. Q3 2026"></div>
+            </div>
+            <div class="field"><label>Specifications</label><textarea placeholder="Colourways, finish, certifications, sampling needs…"></textarea></div>
+            <button class="btn btn-gold" id="rfq-submit">Send RFQ <span class="arr">→</span></button>
+            <div class="note">No commitment. You'll review responses before anything proceeds.</div>
+          </div>
+          <div id="rfq-done" class="rfq-ok" style="display:none">
+            <div class="ck"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg></div>
+            <h4>RFQ sent</h4>
+            <p class="sub" style="max-width:26ch;margin:8px auto 0">Cerruti has been notified. Track responses in your AURELEAN workspace.</p>
+            <a href="Trade.html" class="btn btn-ghost-dk" style="width:100%;justify-content:center;margin-top:20px">Back to marketplace</a>
+          </div>
+        </div>
+        <div class="reveal" style="margin-top:14px;display:flex;gap:10px">
+          <button class="btn btn-ghost-lt" style="flex:1;justify-content:center" id="savebtn">Save mill</button>
+          <a href="#" class="btn btn-ghost-lt" style="flex:1;justify-content:center">Request sample</a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- related -->
+<section class="dk section">
+  <div class="wrap">
+    <div class="flex between center reveal" style="flex-wrap:wrap;gap:12px">
+      <h2 class="h-md">Comparable mills</h2>
+      <a href="Trade.html" class="btn btn-link">View all wool <span class="arr">→</span></a>
+    </div>
+    <div class="grid cols-3 reveal" style="margin-top:30px">
+      <a href="Trade-Supplier.html" class="card" style="padding:0;overflow:hidden">
+        <div class="ph" style="aspect-ratio:4/3" data-label="wool"></div>
+        <div style="padding:18px"><div style="font-family:var(--mono);font-size:11px;color:var(--on-dk-mut)">Italy · IT</div><h4 class="serif" style="font-size:22px;margin-top:8px">Vitale Barberis</h4></div>
+      </a>
+      <a href="Trade-Supplier.html" class="card" style="padding:0;overflow:hidden">
+        <div class="ph" style="aspect-ratio:4/3" data-label="wool"></div>
+        <div style="padding:18px"><div style="font-family:var(--mono);font-size:11px;color:var(--on-dk-mut)">Italy · IT</div><h4 class="serif" style="font-size:22px;margin-top:8px">Drago Biella</h4></div>
+      </a>
+      <a href="Trade-Supplier.html" class="card" style="padding:0;overflow:hidden">
+        <div class="ph" style="aspect-ratio:4/3" data-label="wool"></div>
+        <div style="padding:18px"><div style="font-family:var(--mono);font-size:11px;color:var(--on-dk-mut)">UK · GB</div><h4 class="serif" style="font-size:22px;margin-top:8px">Fox Brothers</h4></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+<script>
+document.getElementById('rfq-submit').addEventListener('click', function(){
+  document.getElementById('rfq-form').style.display='none';
+  document.getElementById('rfq-done').style.display='block';
+});
+document.getElementById('savebtn').addEventListener('click', function(){
+  var on = this.textContent.trim()==='Saved';
+  this.textContent = on ? 'Save mill' : 'Saved';
+  this.style.borderColor = on ? '' : 'var(--gold)';
+  this.style.color = on ? '' : 'var(--gold-deep)';
+});
+</script>
+<script src="partials.js"></script>
+<script src="site.js"></script>
+<script src="tweaks.js"></script>
+</body>
+</html>
