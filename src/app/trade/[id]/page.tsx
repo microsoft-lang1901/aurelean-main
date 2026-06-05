@@ -1,12 +1,9 @@
 import { notFound } from "next/navigation";
 import { PublicShell } from "@/components/SiteChrome";
 import { SupplierClient } from "@/components/SupplierClient";
-import { getSupplier, listSuppliers } from "@/lib/store";
+import { getSupplier } from "@/lib/store";
 
-export async function generateStaticParams() {
-  const suppliers = await listSuppliers();
-  return suppliers.map((supplier) => ({ id: supplier.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function SupplierPage({
   params
