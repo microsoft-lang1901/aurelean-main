@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BarChart3, Bell, Box, Brain, CheckCircle2, Grid2X2, Search, Shield, Sparkles, Users } from "lucide-react";
-import type { AureleanState, Bid, MemoryEntry, Rfq, Supplier } from "@/types/aurelean";
+import { BarChart3, Bell, Box, Brain, Grid2X2, Search, Send, Shield, Sparkles, Users } from "lucide-react";
+import type { AgentAction, AgentRunData, AureleanState, Bid, MemoryEntry, Rfq, Supplier } from "@/types/aurelean";
 
 type View = "overview" | "rfq" | "suppliers" | "memory";
 
@@ -10,6 +10,9 @@ export function WorkspaceClient({ initialState }: { initialState: AureleanState 
   const [state, setState] = useState(initialState);
   const [view, setView] = useState<View>("overview");
   const [selectedRfqId, setSelectedRfqId] = useState(initialState.rfqs[0]?.id ?? "");
+  const [command, setCommand] = useState("Compare bids for RFQ-2041 and tell me the approval boundary.");
+  const [agentResult, setAgentResult] = useState<AgentRunData | null>(null);
+  const [agentBusy, setAgentBusy] = useState(false);
   const selectedRfq = state.rfqs.find((rfq) => rfq.id === selectedRfqId) ?? state.rfqs[0];
   const bids = state.bids.filter((bid) => bid.rfqId === selectedRfq?.id);
 
@@ -27,6 +30,49 @@ export function WorkspaceClient({ initialState }: { initialState: AureleanState 
     });
     const json = await response.json();
     if (json.ok) await refresh();
+  }
+
+  async function runAgent(action: AgentAction = "ask") {
+    setAgentBusy(true);
+    try {
+      const response = await fetch("/api/agents/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: command,
+          action,
+          rfqId: selectedRfq?.id,
+          supplierId: selectedRfq?.supplierId,
+          material: selectedRfq?.material,
+          quantity: selectedRfq?.quantity,
+          targetDelivery: selectedRfq?.targetDelivery,
+          specifications: command
+        })
+      });
+      const json = await response.json();
+      if (json.ok) {
+        setAgentResult(json.data);
+        await refresh();
+      } else {
+        setAgentResult({
+          answer: json.error || "AURELEAN could not complete that command.",
+          source: "deterministic-fallback",
+          action,
+          approvalRequired: false,
+          toolEvents: []
+        });
+      }
+    } catch {
+      setAgentResult({
+        answer: "AURELEAN could not reach the agent backend.",
+        source: "deterministic-fallback",
+        action,
+        approvalRequired: false,
+        toolEvents: []
+      });
+    } finally {
+      setAgentBusy(false);
+    }
   }
 
   return (
@@ -57,13 +103,25 @@ export function WorkspaceClient({ initialState }: { initialState: AureleanState 
           <h1 className="h-md" style={{ minWidth: 210 }}>{titles[view]}</h1>
           <label className="input" style={{ maxWidth: 360, display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
             <Search size={16} />
-            <input style={{ border: 0, background: "transparent", outline: 0, width: "100%" }} placeholder="Search or ask AURELEAN..." />
+            <input
+              style={{ border: 0, background: "transparent", outline: 0, width: "100%" }}
+              placeholder="Search or ask AURELEAN..."
+              value={command}
+              onChange={(event) => setCommand(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") void runAgent("ask");
+              }}
+            />
           </label>
+          <button className="btn btn-ghost-lt" onClick={() => runAgent("ask")} disabled={agentBusy}>
+            <Send size={16} /> {agentBusy ? "Running" : "Ask"}
+          </button>
           <button className="btn btn-ghost-lt" aria-label="Notifications"><Bell size={16} /></button>
-          <button className="btn btn-gold" onClick={() => setView("rfq")}>New RFQ</button>
+          <button className="btn btn-gold" onClick={() => runAgent("create_rfq")}>New RFQ</button>
         </div>
+        <AgentConsole result={agentResult} busy={agentBusy} runAgent={runAgent} selectedRfq={selectedRfq} />
         {view === "overview" && <Overview state={state} setView={setView} setSelectedRfqId={setSelectedRfqId} />}
-        {view === "rfq" && selectedRfq && <RfqInbox rfqs={state.rfqs} selected={selectedRfq} bids={bids} select={setSelectedRfqId} award={awardBid} />}
+        {view === "rfq" && selectedRfq && <RfqInbox rfqs={state.rfqs} selected={selectedRfq} bids={bids} select={setSelectedRfqId} award={awardBid} runAgent={runAgent} />}
         {view === "suppliers" && <SupplierPipeline suppliers={state.suppliers} />}
         {view === "memory" && <MemoryView memories={state.memories} refresh={refresh} />}
       </main>
@@ -77,6 +135,48 @@ const titles: Record<View, string> = {
   suppliers: "Supplier Workspace",
   memory: "Operational Memory"
 };
+
+function AgentConsole({
+  result,
+  busy,
+  runAgent,
+  selectedRfq
+}: {
+  result: AgentRunData | null;
+  busy: boolean;
+  runAgent: (action?: AgentAction) => Promise<void>;
+  selectedRfq?: Rfq;
+}) {
+  return (
+    <div className="agent-console">
+      <div>
+        <div className="kicker">AURELEAN Agent Layer</div>
+        <strong>{selectedRfq ? `${selectedRfq.id} active context` : "Workspace context"}</strong>
+      </div>
+      <div className="agent-actions">
+        <button className="btn btn-ghost-lt" onClick={() => runAgent("search_suppliers")} disabled={busy}>Supplier search</button>
+        <button className="btn btn-ghost-lt" onClick={() => runAgent("compare_bids")} disabled={busy}>Compare bids</button>
+        <button className="btn btn-ghost-lt" onClick={() => runAgent("risk_review")} disabled={busy}>Risk review</button>
+        <button className="btn btn-ghost-lt" onClick={() => runAgent("recommend_award")} disabled={busy}>Prepare approval</button>
+      </div>
+      {result && (
+        <div className={`agent-result ${result.approvalRequired ? "needs-approval" : ""}`}>
+          <Sparkles size={18} />
+          <div>
+            <strong>{result.approvalRequired ? "Human approval required" : "Agent result"}</strong>
+            <p>{result.answer}</p>
+            <div className="chip-row">
+              <span className="chip">{result.source}</span>
+              {result.toolEvents.map((item) => (
+                <span className="chip" key={`${item.tool}-${item.status}`}>{item.tool}: {item.status}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function NavButton({
   view,
@@ -167,13 +267,15 @@ function RfqInbox({
   selected,
   bids,
   select,
-  award
+  award,
+  runAgent
 }: {
   rfqs: Rfq[];
   selected: Rfq;
   bids: Bid[];
   select: (id: string) => void;
   award: (rfq: Rfq, bid: Bid) => void;
+  runAgent: (action?: AgentAction) => Promise<void>;
 }) {
   return (
     <div className="rfq-layout">
@@ -193,7 +295,10 @@ function RfqInbox({
             <h2 className="h-lg">{selected.supplierName}</h2>
             <p className="lead">{selected.material}</p>
           </div>
-          <button className="btn btn-gold" disabled={!bids[0]} onClick={() => bids[0] && award(selected, bids[0])}>Award best bid</button>
+          <div className="tool-row" style={{ justifyContent: "flex-end" }}>
+            <button className="btn btn-ghost-lt" disabled={!bids[0]} onClick={() => runAgent("recommend_award")}>Prepare approval</button>
+            <button className="btn btn-gold" disabled={!bids[0]} onClick={() => bids[0] && award(selected, bids[0])}>Award best bid</button>
+          </div>
         </div>
         <div className="grid-4" style={{ marginTop: 24 }}>
           <Kpi label="Quantity" value={selected.quantity} note="Requested" />

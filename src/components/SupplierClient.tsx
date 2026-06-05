@@ -28,6 +28,7 @@ export function SupplierClient({ supplier }: { supplier: Supplier }) {
 
   async function submitRfq() {
     setBusy(true);
+    setSampleDone("");
     const response = await fetch("/api/rfqs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -40,6 +41,7 @@ export function SupplierClient({ supplier }: { supplier: Supplier }) {
   }
 
   async function requestSample() {
+    setRfqDone("");
     const response = await fetch(`/api/suppliers/${supplier.id}/sample`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

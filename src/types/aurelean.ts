@@ -101,6 +101,31 @@ export type AureleanState = {
   sampleRequests: SampleRequest[];
 };
 
+export type AgentAction =
+  | "ask"
+  | "search_suppliers"
+  | "compare_bids"
+  | "create_rfq"
+  | "request_sample"
+  | "recommend_award"
+  | "query_memory"
+  | "risk_review";
+
+export type AgentToolEvent = {
+  tool: string;
+  status: "completed" | "blocked" | "approval_required" | "fallback";
+  summary: string;
+};
+
+export type AgentRunData = {
+  answer: string;
+  source: "agents-sdk" | "deterministic-fallback" | "deterministic-action";
+  action: AgentAction;
+  approvalRequired: boolean;
+  toolEvents: AgentToolEvent[];
+  data?: unknown;
+};
+
 export type ApiResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string };

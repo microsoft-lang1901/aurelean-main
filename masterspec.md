@@ -49,6 +49,7 @@ AURELEAN is the operating layer for global sourcing: a quiet-luxury public site,
    - `POST /api/suppliers/{id}/save`
    - `POST /api/suppliers/{id}/sample`
    - `POST /api/memory/query`
+   - `POST /api/agents/run`
 
 ## Data Model
 
@@ -66,6 +67,23 @@ Local mode persists this object to `data/aurelean-db.json`. Supabase mode persis
 ## AI Behavior
 
 `/api/memory/query` calls the OpenAI Responses API when `OPENAI_API_KEY` is available. It answers only from provided operational data. If the key is unavailable or the API fails, the endpoint returns a deterministic memory-based fallback so the product remains usable.
+
+`/api/agents/run` is the agentic operating layer. It uses the OpenAI Agents SDK with an AURELEAN Orchestrator and four specialist agents:
+
+- Supplier Intelligence Agent
+- RFQ Orchestration Agent
+- Bid Comparison Agent
+- Operational Memory Agent
+
+The agent tools map onto concrete product functions: supplier search, supplier profile lookup, RFQ creation, sample request creation, bid comparison, operational memory query, supplier risk review, and award recommendation preparation.
+
+Required guardrails:
+
+- Agents must never execute an award. They can only prepare an approval recommendation.
+- The visible RFQ award button is the human approval action.
+- RFQs and samples can only be created for verified suppliers.
+- Certifications, supplier facts, and bid facts must be sourced from stored app state.
+- Requests that attempt to bypass approval, ignore guardrails, or initiate payment are blocked.
 
 Default model: `gpt-5.4-mini`.
 

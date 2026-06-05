@@ -238,6 +238,21 @@ export async function listMemory() {
   return (await getState()).memories;
 }
 
+export async function recordMemory(
+  input: Omit<MemoryEntry, "id" | "time" | "group">
+) {
+  return updateState<MemoryEntry>((state) => {
+    const memory: MemoryEntry = {
+      ...input,
+      id: `MEM-${Date.now()}`,
+      time: "Just now",
+      group: "Today"
+    };
+    state.memories.unshift(memory);
+    return memory;
+  });
+}
+
 export function findMemoryMatches(memories: MemoryEntry[], query: string) {
   const q = query.toLowerCase();
   return memories.filter((entry) => {

@@ -5,6 +5,7 @@ const checks = [
   ["GET", "/trade", null],
   ["GET", "/workspace", null],
   ["GET", "/api/bootstrap", null],
+  ["GET", "/api/rfqs", null],
   [
     "POST",
     "/api/request-access",
@@ -35,6 +36,46 @@ const checks = [
     "/api/memory/query",
     {
       question: "Why did we choose Cerruti?"
+    }
+  ],
+  [
+    "POST",
+    "/api/suppliers/cerruti/save",
+    {}
+  ],
+  [
+    "POST",
+    "/api/suppliers/cerruti/sample",
+    {
+      material: "Super 150s worsted wool",
+      quantity: "2 sample sets",
+      targetDelivery: "Q3 2026",
+      specifications: "Automated smoke sample request."
+    }
+  ],
+  [
+    "POST",
+    "/api/rfqs/RFQ-2041/award",
+    {
+      bidId: "BID-9001"
+    }
+  ],
+  [
+    "POST",
+    "/api/agents/run",
+    {
+      action: "compare_bids",
+      prompt: "Compare bids for RFQ-2041",
+      rfqId: "RFQ-2041"
+    }
+  ],
+  [
+    "POST",
+    "/api/agents/run",
+    {
+      action: "recommend_award",
+      prompt: "Prepare award approval for RFQ-2041",
+      rfqId: "RFQ-2041"
     }
   ]
 ];
