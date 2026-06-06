@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 const sourcingOptions = ["Luxury textiles", "Furnishings", "Materials", "Manufacturing"];
@@ -78,7 +79,7 @@ export function RequestAccessClient() {
                 Thank you. Your request has been stored and the AURELEAN team can
                 review it from the backend data layer.
               </p>
-              <a className="btn btn-gold" href="/" style={{ marginTop: 22 }}>Back to home</a>
+              <Link className="btn btn-gold" href="/" style={{ marginTop: 22 }}>Back to home</Link>
             </div>
           ) : (
             <>
@@ -143,10 +144,11 @@ function Field({
   onChange: (value: string) => void;
   type?: string;
 }) {
+  const id = `request-${label.toLowerCase().replace(/\s+/g, "-")}`;
   return (
     <div className="field">
-      <label>{label}</label>
-      <input className="input" type={type} value={value} onChange={(event) => onChange(event.target.value)} />
+      <label htmlFor={id}>{label}</label>
+      <input id={id} className="input" type={type} value={value} onChange={(event) => onChange(event.target.value)} />
     </div>
   );
 }

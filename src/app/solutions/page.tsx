@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { ArrowRight, Factory, Gem, Landmark, Shirt } from "lucide-react";
 import { PublicShell } from "@/components/SiteChrome";
 
 const solutions = [
-  ["Luxury textiles", "Source the world's finest cloth with provenance built in."],
-  ["Furnishings", "Coordinate sourcing across materials, makers, and ateliers."],
-  ["Material sourcing", "Match raw and processed materials to specification and standard."],
-  ["Manufacturing", "Track production milestones across the supply chain."]
+  ["textiles", "Luxury textiles", "Source the world's finest cloth with provenance built in."],
+  ["furnishings", "Furnishings", "Coordinate sourcing across materials, makers, and ateliers."],
+  ["materials", "Material sourcing", "Match raw and processed materials to specification and standard."],
+  ["manufacturing", "Manufacturing", "Track production milestones across the supply chain."]
 ];
 
 export default function SolutionsPage() {
@@ -25,15 +26,22 @@ export default function SolutionsPage() {
       </section>
       <section className="section">
         <div className="wrap grid-4">
-          {solutions.map(([title, text]) => (
-            <div className="feature-card" key={title}>
+          {solutions.map(([id, title, text], index) => (
+            <div className="feature-card" id={id} key={title}>
+              {[<Shirt key="shirt" />, <Landmark key="landmark" />, <Gem key="gem" />, <Factory key="factory" />][index]}
               <div className="eyebrow">{title}</div>
               <h2 className="h-md" style={{ marginTop: 14 }}>{text}</h2>
+              <p>
+                Use verified supplier records, RFQs, samples, and operational memory
+                to keep complex sourcing work moving with less drift.
+              </p>
             </div>
           ))}
         </div>
         <div className="wrap" style={{ textAlign: "center", marginTop: 54 }}>
-          <Link className="btn btn-gold" href="/request-access">Find your entry point</Link>
+          <Link className="btn btn-gold" href="/request-access">
+            Find your entry point <ArrowRight size={16} />
+          </Link>
         </div>
       </section>
     </PublicShell>

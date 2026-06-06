@@ -85,22 +85,22 @@ export function SupplierClient({ supplier }: { supplier: Supplier }) {
           <h2 className="h-md">Request a quote</h2>
           <p className="lead">Structured RFQ delivered to {supplier.name} through AURELEAN.</p>
           <div className="field">
-            <label style={{ color: "var(--on-dk-dim)" }}>Material</label>
-            <input className="input" value={form.material} onChange={(e) => setValue("material", e.target.value)} />
+            <label htmlFor="rfq-material" style={{ color: "var(--on-dk-dim)" }}>Material</label>
+            <input id="rfq-material" className="input" value={form.material} onChange={(e) => setValue("material", e.target.value)} />
           </div>
           <div className="two">
             <div className="field">
-              <label style={{ color: "var(--on-dk-dim)" }}>Quantity</label>
-              <input className="input" value={form.quantity} onChange={(e) => setValue("quantity", e.target.value)} />
+              <label htmlFor="rfq-quantity" style={{ color: "var(--on-dk-dim)" }}>Quantity</label>
+              <input id="rfq-quantity" className="input" value={form.quantity} onChange={(e) => setValue("quantity", e.target.value)} />
             </div>
             <div className="field">
-              <label style={{ color: "var(--on-dk-dim)" }}>Target delivery</label>
-              <input className="input" value={form.targetDelivery} onChange={(e) => setValue("targetDelivery", e.target.value)} />
+              <label htmlFor="rfq-target-delivery" style={{ color: "var(--on-dk-dim)" }}>Target delivery</label>
+              <input id="rfq-target-delivery" className="input" value={form.targetDelivery} onChange={(e) => setValue("targetDelivery", e.target.value)} />
             </div>
           </div>
           <div className="field">
-            <label style={{ color: "var(--on-dk-dim)" }}>Specifications</label>
-            <textarea className="textarea" value={form.specifications} onChange={(e) => setValue("specifications", e.target.value)} placeholder="Colourways, finish, certifications, sampling needs..." />
+            <label htmlFor="rfq-specifications" style={{ color: "var(--on-dk-dim)" }}>Specifications</label>
+            <textarea id="rfq-specifications" className="textarea" value={form.specifications} onChange={(e) => setValue("specifications", e.target.value)} placeholder="Colourways, finish, certifications, sampling needs..." />
           </div>
           <button className="btn btn-gold" style={{ width: "100%", marginTop: 18 }} onClick={submitRfq} disabled={busy}>
             {busy ? "Sending..." : "Send RFQ"}

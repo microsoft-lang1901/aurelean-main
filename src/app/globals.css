@@ -134,8 +134,22 @@ button {
   min-height: 42px;
   font-size: 13.5px;
   font-weight: 600;
-  transition: 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, filter 0.2s ease;
   white-space: nowrap;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
 }
 
 .btn-gold {
@@ -160,10 +174,20 @@ button {
   background: transparent;
 }
 
+.btn-ghost-dk:hover {
+  border-color: rgba(217, 189, 134, 0.54);
+  background: rgba(217, 189, 134, 0.08);
+}
+
 .btn-ghost-lt {
   color: var(--on-lt);
   border-color: var(--line-lt);
   background: transparent;
+}
+
+.btn-ghost-lt:hover {
+  border-color: rgba(159, 124, 67, 0.36);
+  background: rgba(196, 160, 100, 0.1);
 }
 
 .btn-link {
@@ -311,10 +335,34 @@ h3 {
   background: rgba(255, 255, 255, 0.2);
 }
 
+.feature-card {
+  transition: transform 0.24s ease, border-color 0.24s ease, background 0.24s ease, box-shadow 0.24s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(159, 124, 67, 0.28);
+  box-shadow: 0 18px 46px rgba(21, 18, 13, 0.07);
+}
+
 .feature-card svg,
 .nav-icon {
   width: 22px;
   height: 22px;
+}
+
+.feature-card p,
+.metric-card p {
+  color: var(--on-lt-mut);
+}
+
+.card-title {
+  margin-top: 18px;
+  font-size: clamp(22px, 2.2vw, 30px);
+}
+
+.link-card {
+  display: block;
 }
 
 .image-panel {
@@ -589,12 +637,41 @@ h3 {
   width: 100%;
   text-align: left;
   border-color: transparent;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .nav-item.on,
 .nav-item:hover {
   color: var(--on-dk);
   background: rgba(196, 160, 100, 0.14);
+}
+
+.nav-item:hover {
+  transform: translateX(2px);
+}
+
+.nav-item:active {
+  transform: translateX(1px) scale(0.995);
+}
+
+.nav-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(217, 189, 134, 0.12), transparent);
+  transform: translateX(-110%);
+  transition: transform 0.42s ease;
+}
+
+.nav-item:hover::after {
+  transform: translateX(110%);
+}
+
+.nav-item > * {
+  position: relative;
+  z-index: 1;
 }
 
 .appmain {
@@ -748,6 +825,111 @@ h3 {
   border-radius: var(--radius);
 }
 
+.page-hero {
+  min-height: 560px;
+  display: flex;
+  align-items: flex-end;
+  padding-block: clamp(86px, 11vw, 142px);
+  background-size: cover;
+  background-position: center;
+}
+
+.intelligence-hero {
+  background-image:
+    radial-gradient(circle at 78% 34%, rgba(196, 160, 100, 0.18), transparent 30%),
+    linear-gradient(90deg, rgba(12, 11, 9, 0.94), rgba(12, 11, 9, 0.72), rgba(12, 11, 9, 0.42)),
+    url("/assets/landing/coastal-villa-wide.png");
+}
+
+.company-hero {
+  background-image:
+    linear-gradient(90deg, rgba(12, 11, 9, 0.92), rgba(12, 11, 9, 0.58)),
+    url("/assets/landing/interior-hero.png");
+}
+
+.intelligence-band {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.18), rgba(196,160,100,0.08)),
+    var(--paper);
+}
+
+.intelligence-map {
+  position: relative;
+  min-height: 460px;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg, rgba(21,18,13,0.04), rgba(255,255,255,0.24)),
+    repeating-linear-gradient(90deg, transparent 0 58px, rgba(21,18,13,0.045) 58px 59px),
+    repeating-linear-gradient(0deg, transparent 0 58px, rgba(21,18,13,0.045) 58px 59px);
+}
+
+.intelligence-map::before {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border: 1px solid rgba(159, 124, 67, 0.18);
+  transform: rotate(45deg);
+}
+
+.map-node {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 116px;
+  justify-content: center;
+  border: 1px solid rgba(159, 124, 67, 0.28);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  background: rgba(244, 240, 232, 0.9);
+  box-shadow: 0 16px 44px rgba(21, 18, 13, 0.08);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.map-node.core {
+  top: 43%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #22190c;
+  background: linear-gradient(180deg, var(--gold-2), var(--gold));
+}
+
+.map-node.supplier { top: 16%; left: 12%; }
+.map-node.rfq { top: 16%; right: 12%; }
+.map-node.bid { bottom: 18%; left: 16%; }
+.map-node.memory { bottom: 18%; right: 14%; }
+
+.map-icon {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  left: 50%;
+  bottom: 9%;
+  transform: translateX(-50%);
+  color: rgba(159, 124, 67, 0.38);
+}
+
+.hero-icon {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 20px;
+  color: var(--gold-2);
+}
+
+.check-line {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: var(--on-lt-mut);
+}
+
+.check-line svg {
+  color: var(--gold-deep);
+  flex: none;
+  margin-top: 3px;
+}
+
 @media (max-width: 1000px) {
   .nav-links,
   .signin {
@@ -782,6 +964,10 @@ h3 {
   .agent-actions {
     justify-content: flex-start;
   }
+
+  .page-hero {
+    min-height: 500px;
+  }
 }
 
 @media (max-width: 720px) {
@@ -805,5 +991,23 @@ h3 {
 
   .h-xl {
     font-size: 46px;
+  }
+
+  .nav-in {
+    min-height: 62px;
+  }
+
+  .nav-right .btn {
+    padding-inline: 12px;
+  }
+
+  .intelligence-map {
+    min-height: 360px;
+  }
+
+  .map-node {
+    min-width: 94px;
+    padding: 10px;
+    font-size: 12px;
   }
 }

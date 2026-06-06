@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BarChart3, Bot, Clock, Layers, ShieldCheck } from "lucide-react";
+import { ArrowRight, BarChart3, Bot, Clock, Layers, ShieldCheck } from "lucide-react";
 import { PublicShell } from "@/components/SiteChrome";
 
 export default function HomePage() {
@@ -16,10 +16,10 @@ export default function HomePage() {
           </p>
           <div className="hero-actions">
             <Link className="btn btn-gold" href="/request-access">
-              Request Access
+              Request Access <ArrowRight size={16} />
             </Link>
             <Link className="btn btn-ghost-dk" href="/platform">
-              Explore the Platform
+              Explore the Platform <ArrowRight size={16} />
             </Link>
           </div>
         </div>
@@ -54,7 +54,7 @@ export default function HomePage() {
               and agentic automation.
             </p>
             <Link className="btn btn-link" href="/platform">
-              Explore the platform →
+              Explore the platform <ArrowRight size={16} />
             </Link>
           </div>
           <Image
@@ -99,7 +99,7 @@ export default function HomePage() {
             <Stat number="24/7" label="Operational intelligence" />
           </div>
           <Link className="btn btn-gold" href="/request-access" style={{ marginTop: 36 }}>
-            Request Access
+            Request Access <ArrowRight size={16} />
           </Link>
         </div>
       </section>

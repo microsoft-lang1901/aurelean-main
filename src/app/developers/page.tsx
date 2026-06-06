@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { PublicShell } from "@/components/SiteChrome";
 
 export default function DevelopersPage() {
@@ -14,7 +15,7 @@ export default function DevelopersPage() {
               recommendations through first-party backend routes.
             </p>
             <Link className="btn btn-gold" href="/request-access" style={{ marginTop: 28 }}>
-              Get an API key
+              Get an API key <ArrowRight size={16} />
             </Link>
           </div>
           <div className="panel" style={{ background: "#100e0b", color: "var(--on-dk)", padding: 24 }}>
@@ -41,7 +42,9 @@ export default function DevelopersPage() {
             <Endpoint method="POST" path="/api/memory/query" text="Ask operational memory" />
             <Endpoint method="POST" path="/api/request-access" text="Capture access requests" />
             <Endpoint method="POST" path="/api/suppliers/{id}/save" text="Toggle saved supplier" />
+            <Endpoint method="POST" path="/api/suppliers/{id}/sample" text="Create sample requests" />
             <Endpoint method="POST" path="/api/rfqs/{id}/award" text="Award a bid" />
+            <Endpoint method="POST" path="/api/agents/run" text="Run the agentic operating layer" />
           </div>
         </div>
       </section>

@@ -9,7 +9,9 @@ type View = "overview" | "rfq" | "suppliers" | "memory";
 export function WorkspaceClient({ initialState }: { initialState: AureleanState }) {
   const [state, setState] = useState(initialState);
   const [view, setView] = useState<View>("overview");
-  const [selectedRfqId, setSelectedRfqId] = useState(initialState.rfqs[0]?.id ?? "");
+  const [selectedRfqId, setSelectedRfqId] = useState(
+    initialState.rfqs.find((rfq) => rfq.bidsReceived > 0)?.id ?? initialState.rfqs[0]?.id ?? ""
+  );
   const [command, setCommand] = useState("Compare bids for RFQ-2041 and tell me the approval boundary.");
   const [agentResult, setAgentResult] = useState<AgentRunData | null>(null);
   const [agentBusy, setAgentBusy] = useState(false);

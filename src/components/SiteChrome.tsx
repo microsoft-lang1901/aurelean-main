@@ -1,5 +1,14 @@
 import Link from "next/link";
 
+const primaryLinks = [
+  { href: "/platform", label: "Platform" },
+  { href: "/solutions", label: "Solutions" },
+  { href: "/intelligence", label: "Intelligence" },
+  { href: "/developers", label: "Developers" },
+  { href: "/resources", label: "Resources" },
+  { href: "/company", label: "Company" }
+];
+
 export function Logo() {
   return (
     <span className="logo">
@@ -20,12 +29,11 @@ export function SiteNav() {
           <Logo />
         </Link>
         <nav className="nav-links" aria-label="Primary navigation">
-          <Link href="/platform">Platform</Link>
-          <Link href="/solutions">Solutions</Link>
-          <Link href="/trade">Trade</Link>
-          <Link href="/platform#intelligence">Intelligence</Link>
-          <Link href="/developers">Developers</Link>
-          <Link href="#company">Company</Link>
+          {primaryLinks.map((link) => (
+            <Link key={link.href} href={link.href}>
+              {link.label}
+            </Link>
+          ))}
         </nav>
         <div className="nav-right">
           <Link className="signin" href="/workspace">
@@ -52,24 +60,56 @@ export function Footer() {
               and manufacturing coordination.
             </p>
           </div>
-          <FooterList title="Platform" items={["Overview", "Trade", "Intelligence", "AI Agent"]} />
-          <FooterList title="Solutions" items={["Luxury Textiles", "Furnishings", "Materials", "Manufacturing"]} />
-          <FooterList title="Company" items={["About", "Careers", "Newsroom", "Contact"]} />
-          <FooterList title="Resources" items={["Developers", "Documentation", "Security", "Privacy"]} />
+          <FooterList
+            title="Platform"
+            items={[
+              ["Overview", "/platform"],
+              ["Trade", "/trade"],
+              ["Intelligence", "/intelligence"],
+              ["AI Agent", "/workspace"]
+            ]}
+          />
+          <FooterList
+            title="Solutions"
+            items={[
+              ["Luxury Textiles", "/solutions#textiles"],
+              ["Furnishings", "/solutions#furnishings"],
+              ["Materials", "/solutions#materials"],
+              ["Manufacturing", "/solutions#manufacturing"]
+            ]}
+          />
+          <FooterList
+            title="Company"
+            items={[
+              ["About", "/company#about"],
+              ["Careers", "/company#careers"],
+              ["Newsroom", "/company#newsroom"],
+              ["Contact", "/company#contact"]
+            ]}
+          />
+          <FooterList
+            title="Resources"
+            items={[
+              ["Developers", "/developers"],
+              ["Documentation", "/resources#documentation"],
+              ["Security", "/security"],
+              ["Privacy", "/privacy"]
+            ]}
+          />
         </div>
       </div>
     </footer>
   );
 }
 
-function FooterList({ title, items }: { title: string; items: string[] }) {
+function FooterList({ title, items }: { title: string; items: [string, string][] }) {
   return (
     <div>
       <h5>{title}</h5>
       <ul>
-        {items.map((item) => (
-          <li key={item}>
-            <Link href={title === "Resources" ? "/developers" : "/platform"}>{item}</Link>
+        {items.map(([label, href]) => (
+          <li key={label}>
+            <Link href={href}>{label}</Link>
           </li>
         ))}
       </ul>
