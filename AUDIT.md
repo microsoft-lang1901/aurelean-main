@@ -175,5 +175,6 @@ None.
 ## 9) Live deployment
 
 - Production deployment URL: https://aurelean-main-knb349540-monsieur-app.vercel.app
+- Latest production deployment URL: https://aurelean-main-on1qaikk3-monsieur-app.vercel.app
 - Aliased domain: https://aurelean-main.vercel.app
-- Verification note: deployment is protected by platform auth for this environment; local checks remain green on `http://127.0.0.1:3000`.
+- Verification note: both production URLs in this workspace are currently protected by platform auth for this environment; local checks remain green on `http://127.0.0.1:3000`.
