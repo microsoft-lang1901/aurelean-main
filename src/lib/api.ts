@@ -1,4 +1,5 @@
 import type { ApiResult } from "@/types/aurelean";
+import { z } from "zod";
 
 const defaultMaxJsonBytes = 32_000;
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
@@ -47,6 +48,39 @@ export function cleanStringArray(value: unknown, maxItems = 8, maxLength = 80) {
     .map((item) => cleanString(item, maxLength))
     .filter(Boolean)
     .slice(0, maxItems);
+}
+
+function normalizePayloadIssues(issues: Array<z.ZodIssue>) {
+  return issues
+    .map((item) => `${item.path.map(String).join(".")} ${item.message}` || "Invalid value.")
+    .join("; ");
+}
+
+export async function parseValidatedJson<T extends z.ZodTypeAny>(
+  request: Request,
+  schema: T,
+  maxBytes = defaultMaxJsonBytes
+) {
+  try {
+    const body = await readJson<unknown>(request, maxBytes);
+    const result = schema.safeParse(body);
+    if (!result.success) {
+      return {
+        ok: false as const,
+        response: fail(
+          `Invalid request payload. ${normalizePayloadIssues(result.error.issues)}`,
+          422,
+          "invalid_payload"
+        )
+      };
+    }
+
+    return { ok: true as const, data: result.data as z.output<T> };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Invalid request payload.";
+    if (message === "Request body is too large.") return { ok: false as const, response: fail(message, 413, "payload_too_large") };
+    return { ok: false as const, response: fail(message, 400, "invalid_json") };
+  }
 }
 
 export function isWorkEmail(value: string) {

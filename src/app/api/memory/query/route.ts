@@ -1,10 +1,7 @@
+import { fail, isRateLimited, ok, parseValidatedJson } from "@/lib/api";
+import { memoryQuerySchema } from "@/lib/validation";
 import { answerMemoryQuestion } from "@/lib/assistant";
-import { cleanString, fail, isRateLimited, ok, readJson } from "@/lib/api";
 import { findMemoryMatches, listMemory, listRfqs, listSuppliers } from "@/lib/store";
-
-type Payload = {
-  question?: string;
-};
 
 export async function POST(request: Request) {
   try {
@@ -12,15 +9,16 @@ export async function POST(request: Request) {
       return fail("Too many memory queries. Please wait and try again.", 429, "rate_limited");
     }
 
-    const body = await readJson<Payload>(request);
-    const question = cleanString(body.question, 600);
-    if (!question) return fail("Question is required.", 422, "missing_question");
+    const bodyResult = await parseValidatedJson(request, memoryQuerySchema);
+    if (!bodyResult.ok) return bodyResult.response;
 
+    const question = bodyResult.data.question;
     const [memories, suppliers, rfqs] = await Promise.all([
       listMemory(),
       listSuppliers(),
       listRfqs()
     ]);
+
     const matches = findMemoryMatches(memories, question);
     const response = await answerMemoryQuestion({
       question,

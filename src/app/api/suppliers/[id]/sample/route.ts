@@ -1,12 +1,6 @@
-import { cleanString, ensureMutationAllowed, fail, isRateLimited, isSafeResourceId, ok, readJson } from "@/lib/api";
+import { ensureMutationAllowed, fail, isRateLimited, ok, parseValidatedJson } from "@/lib/api";
+import { idSchema, supplierSampleSchema } from "@/lib/validation";
 import { createSampleRequest, getSupplier } from "@/lib/store";
-
-type Payload = {
-  material?: string;
-  quantity?: string;
-  targetDelivery?: string;
-  specifications?: string;
-};
 
 export async function POST(
   request: Request,
@@ -21,25 +15,27 @@ export async function POST(
     }
 
     const { id } = await context.params;
-    const supplierId = isSafeResourceId(id);
-    if (!supplierId) {
+    const supplierIdResult = idSchema.safeParse(id);
+    if (!supplierIdResult.success) {
       return fail("Supplier id is invalid.", 422, "invalid_supplier_id");
     }
 
-    const supplier = await getSupplier(supplierId);
+    const supplier = await getSupplier(supplierIdResult.data);
     if (!supplier) return fail("Supplier not found.", 404, "supplier_not_found");
     if (!supplier.verified) return fail("Samples can only be requested from verified suppliers.", 403, "supplier_not_verified");
-    const body = await readJson<Payload>(request);
-    const material = cleanString(body.material, 160) || supplier.material;
-    const quantity = cleanString(body.quantity, 80);
-    if (!quantity) return fail("Sample quantity is required.", 422, "missing_quantity");
+
+    const bodyResult = await parseValidatedJson(request, supplierSampleSchema);
+    if (!bodyResult.ok) return bodyResult.response;
+
+    const material = bodyResult.data.material || supplier.material;
     const sample = await createSampleRequest({
       supplierId: supplier.id,
       material,
-      quantity,
-      targetDelivery: cleanString(body.targetDelivery, 120),
-      specifications: cleanString(body.specifications, 1000)
+      quantity: bodyResult.data.quantity,
+      targetDelivery: bodyResult.data.targetDelivery || "",
+      specifications: bodyResult.data.specifications || ""
     });
+
     return Response.json(ok(sample));
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Could not request sample.");

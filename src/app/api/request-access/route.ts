@@ -1,18 +1,6 @@
-import { cleanString, cleanStringArray, fail, isRateLimited, isWorkEmail, ok, readJson } from "@/lib/api";
+import { fail, isRateLimited, isWorkEmail, ok, parseValidatedJson } from "@/lib/api";
+import { requestAccessSchema } from "@/lib/validation";
 import { createAccessRequest } from "@/lib/store";
-
-type Payload = {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  company?: string;
-  procurementOwner?: string;
-  securityContact?: string;
-  sourcing?: string[];
-  volume?: string;
-  layers?: string[];
-  notes?: string;
-};
 
 export async function POST(request: Request) {
   try {
@@ -20,17 +8,15 @@ export async function POST(request: Request) {
       return fail("Too many submissions. Please wait and try again.", 429, "rate_limited");
     }
 
-    const body = await readJson<Payload>(request);
-    const firstName = cleanString(body.firstName, 80);
-    const lastName = cleanString(body.lastName, 80);
-    const email = cleanString(body.email, 120).toLowerCase();
-    const company = cleanString(body.company, 120);
-    if (!firstName || !lastName || !email || !company) {
-      return fail("First name, last name, work email, and company are required.", 422, "missing_required_fields");
-    }
-    if (!/^[A-Za-z' -]+$/.test(firstName) || !/^[A-Za-z' -]+$/.test(lastName)) {
-      return fail("Names may only contain letters, spaces, apostrophes, and dashes.", 422, "invalid_name");
-    }
+    const bodyResult = await parseValidatedJson(request, requestAccessSchema);
+    if (!bodyResult.ok) return bodyResult.response;
+
+    const body = bodyResult.data;
+    const firstName = body.firstName;
+    const lastName = body.lastName;
+    const email = body.email.toLowerCase();
+    const company = body.company;
+
     if (!isWorkEmail(email)) {
       return fail("Please use a valid work email address.", 422, "invalid_work_email");
     }
@@ -40,12 +26,12 @@ export async function POST(request: Request) {
       lastName,
       email,
       company,
-      procurementOwner: cleanString(body.procurementOwner, 120),
-      securityContact: cleanString(body.securityContact, 120),
-      sourcing: cleanStringArray(body.sourcing),
-      volume: cleanString(body.volume, 80),
-      layers: cleanStringArray(body.layers),
-      notes: cleanString(body.notes, 1000)
+      procurementOwner: body.procurementOwner,
+      securityContact: body.securityContact ?? "",
+      sourcing: body.sourcing,
+      volume: body.volume ?? "",
+      layers: body.layers,
+      notes: body.notes ?? ""
     });
 
     return Response.json(ok(accessRequest));
