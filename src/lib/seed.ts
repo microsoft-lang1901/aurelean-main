@@ -429,7 +429,7 @@ export const initialState: AureleanState = {
       kind: "Decision",
       title: "Approved Libeco linen for SS26 shirting",
       body:
-        "Wet-spun Belgian linen approved after lab-dip review. Locked at €28/m with a four-week lead. Provenance and certification verified.",
+        "Wet-spun Belgian linen approved after lab-dip review. Locked at €68/m with a four-week lead. Provenance and certification verified.",
       entities: ["Libeco", "SS26 Shirting"],
       time: "3 days ago",
       group: "This week"
@@ -448,3 +448,4 @@ export const initialState: AureleanState = {
   accessRequests: [],
   sampleRequests: []
 };
+

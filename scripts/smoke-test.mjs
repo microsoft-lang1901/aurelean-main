@@ -144,6 +144,10 @@ const negativeChecks = [
   ]
 ];
 
+const optionalPostChecks = [
+  ["/api/integrations/nvidia-simready/run", [200, 202, 422]]
+];
+
 const malformedChecks = [
   [
     "POST",
@@ -264,6 +268,37 @@ for (const [path, body] of postChecks) {
   console.log(`OK POST ${path}`);
 }
 
+for (const [path, expectedStatuses] of optionalPostChecks) {
+  const response = await request("POST", path, {});
+  if (response.status === 401 || response.status === 403) {
+    const payload = await response.json();
+    console.log(`OK POST ${path} blocked by auth guard (${payload.code ?? response.status})`);
+    continue;
+  }
+  if (!expectedStatuses.includes(response.status)) {
+    const payload = await response.text();
+    throw new Error(`POST ${path} failed with ${response.status}; expected one of ${expectedStatuses.join(", ")}. body: ${payload}`);
+  }
+  let payloadText;
+  try {
+    payloadText = await response.text();
+    if (!payloadText) {
+      throw new Error("empty");
+    }
+  } catch {
+    throw new Error(`POST ${path} returned empty response`);
+  }
+
+  const json = JSON.parse(payloadText);
+  if (response.status === 422 && json?.ok === false) {
+    console.log(`OK POST ${path} returned expected missing-prerequisites failure`);
+  } else if (response.status !== 422 && json?.ok) {
+    console.log(`OK POST ${path} accepted request`);
+  } else {
+    throw new Error(`POST ${path} response invalid for rerun smoke path.`);
+  }
+}
+
 const rfqPayload = {
   supplierId: "cerruti",
   material: "Super 150s worsted wool",
@@ -372,3 +407,6 @@ for (const [method, path, body, expectedStatus] of malformedChecks) {
   }
   console.log(`OK ${method} ${path} rejected malformed payload`);
 }
+
+
+

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { AlertTriangle, ArrowRight, CheckCircle2, CircleDashed, Cpu, XCircle } from "lucide-react";
 import { PublicShell } from "@/components/SiteChrome";
+import { NvidiaSimReadyRerunClient } from "@/components/NvidiaSimReadyRerunClient";
 import { simReadyPipelineSummary, simReadyReadiness, type SimReadyStageStatus } from "@/lib/nvidia-simready";
 
 export const metadata: Metadata = {
@@ -96,6 +97,7 @@ export default function NvidiaSimReadyPage() {
             <p><strong>RENDER_ENDPOINT:</strong> {readiness.renderConfigured ? "Configured" : "Missing"}</p>
             <p><strong>CONTENT_AGENTS_*:</strong> {readiness.contentAgentsConfigured ? "Configured" : "Missing"}</p>
             <p><strong>Runtime:</strong> {readiness.pythonRuntime}</p>
+            <NvidiaSimReadyRerunClient />
             <Link className="text-link" href="/developers">
               Review integration API <ArrowRight size={15} />
             </Link>

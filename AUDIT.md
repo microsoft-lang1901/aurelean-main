@@ -3,16 +3,18 @@
 ## 1) Executive summary
 
 ### Product / design health
-The web product is largely complete for the requested launch surface: marketing pages, solutions, intelligence, integrations, company pages, resources, workspace, trade marketplace, supplier detail pages, and required API documentation pages all exist and render.
-The remaining highest-impact item is production access posture: workflow APIs and workspace mutations should be intentionally hardened for enterprise use when required.
+The launch surface is functionally complete across public pages, workspace surfaces, API routes, and the new NVIDIA integration pages.  
+Current priority is now operational hardening and deployment consistency rather than missing page/build capability.  
+Workspace and high-risk actions are now explicitly framed as demo/simulation in UI copy and routes that can remain public are guarded by validation, rate limits, and optional token checks.
 
 ### Backend / security health
-Core validation, rate limiting, and fallback behavior are in place for core endpoints.
-Primary production risks are environment-dependent and tied to deployment flags:
+Core validation, rate limiting, and deterministic fallback behavior are in place for all implemented production-facing routes.
+Primary production risks are now mostly environment/configuration-driven:
 
-1. Keep `/workspace` clearly identified as a demo unless authenticated onboarding is required.
-2. Enable `AURELEAN_REQUIRE_AUTH=true` with `AURELEAN_API_TOKEN` for mutation protection in production.
-3. Configure trusted Supabase and AI provider variables for durable persistence and stronger inference paths.
+1. Keep `/workspace` explicitly labeled as simulation unless onboarding activates authenticated access.
+2. Enable `AURELEAN_REQUIRE_AUTH=true` + `AURELEAN_API_TOKEN` for production-mutating operations.
+3. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only; prefer Supabase-backed persistence in production.
+4. Configure NVIDIA SimReady trigger credentials before rerun activation.
 
 ## 2) Project architecture overview
 
@@ -49,60 +51,56 @@ Primary production risks are environment-dependent and tied to deployment flags:
 
 ## 3) Commands run
 
-- `npm run lint` : pass
-- `npm run build` : pass (both local and Vercel build)
-- `npm run test:smoke` : pass locally against `http://127.0.0.1:3000`
-- `npm run lint` : pass (latest post-update compatibility check)
-- `npm run build` : pass (after adding `/integrations/nvidia` route)
-- `npm run test:smoke` : pass (with NVIDIA integration redirect coverage)
-- `npx vercel --prod` : pass, production deployment created
+- `npm run lint` : pass (latest)
+- `npm run build` : pass (includes new `/integrations/nvidia`, `/integrations/nvidia-simready`, and rerun API route)
+- `npm run test:smoke` : pass against `http://127.0.0.1:3000` (including `/api/integrations/nvidia-simready/run` validation)
+- `npx vercel --prod` : pass, production deployment created `https://aurelean-main-knpxtrlao-monsieur-app.vercel.app`
 
 Notes / blockers:
-- Vercel deployment is currently protected by platform-level auth in this environment, so anonymous automated smoke checks against `https://aurelean-main-knb349540-monsieur-app.vercel.app` returned `401`.
+- Vercel deployment is currently protected by platform-level auth in this environment, so anonymous automated smoke checks against deployment URLs may return `401`.
 - This does not block the build; it only blocks public automated verification from the current session.
 
 ## 4) Design audit findings
 
 ### Critical
-None.
+- None.
 
 ### High
-- Footer and secondary landing surfaces were previously incomplete; all footer routes now render and map to implemented pages.
-- First-viewport copy and positioning now consistently describe procurement, intelligence, and AI operations on the core pages.
+- Footer, platform, intelligence, company, and workspace navigation now resolve to implemented pages and do not degrade to incorrect fallbacks.
+- NVIDIA integration introduction and SimReady status pages are now present and linked from integrations and developer references.
 
 ### Medium
-- Trade, solutions, intelligence, AI agent, integrations, resources, and company pages all render with operational CTAs.
-- Request Access flow provides step-based validation and clear completion feedback.
-- NVIDIA SimReady status is represented as explicit operational status with blocked/retry requirements.
+- Trade, solutions, AI agent, resources, and company workflows remain complete and functionally wired to API actions.
+- Request Access provides multi-step validation, consumer-email guards, and submission success/error messaging.
+- Workspace banner and section-level labeling now explicitly state demo behavior for public access.
 
 ### Low
-- No dedicated visual regression / interaction suite for full keyboard path coverage.
-- Marketing copy and legal/security phrasing still needs enterprise tone review before final public launch.
+- No dedicated visual regression suite is yet attached to this repo; keyboard path checks are covered in smoke scripts and manual follow-up remains required.
+- A lightweight CMS/brand-edit workflow would improve copy iteration for legal/security pages.
 
 ## 5) Backend/API/security audit findings
 
 ### Critical
-- Production risk remains if mutation endpoints stay unauthenticated while representing real customer accounts.
-- The implementation-level mitigation exists (`AURELEAN_REQUIRE_AUTH` + token checks + rate limiting), but enforcement depends on deployment flags.
+- Production risk is limited to configuration posture when mutation endpoints are exposed for real customer data (if `AURELEAN_REQUIRE_AUTH` remains disabled).
 
 ### High
-- Agent payload validation was strengthened so ask-style requests require a non-empty prompt.
-- Rate limiting and malformed payload checks are applied across mutation and AI/data routes.
-- Mutation failures return explicit status codes and machine-readable error codes.
+- Added `isRateLimited` checks to the new NVIDIA SimReady rerun endpoint to prevent rerun spam and abuse.
+- `/api/integrations/nvidia-simready/run` now returns explicit prerequisite and rate-limit failures with distinct codes.
+- Request validation and deterministic fallbacks were kept strict to avoid unsafe actions from malformed payloads.
 
 ### Medium
-- Request-access blocks common consumer email providers, but broader abuse controls and privacy policy enforcement rely on deployment configuration and onboarding process.
-- NVIDIA simulation metadata is staged from recorded pipeline results, not a live long-running job controller.
+- `request-access` volume/corporate-email validation is enforced, and malformed submissions are rejected with status 422.
+- SimReady rerun is currently staged via metadata and prerequisite checks; rerun execution remains blocked until render and content-agent credentials are configured.
 
 ### Low
-- Deterministic fallback paths can still mutate workspace state when auth is intentionally not enabled.
-- No centralized abuse telemetry stream is present in this version.
+- Deterministic fallback actions still allow simulation-mode workspace mutations when auth is disabled by design; this is acceptable for public demo but should be switched for production onboarding.
+- There is no centralized abuse telemetry stream (only local logs and JSON error responses).
 
 ## 6) Changes implemented
 
 ### Implemented changes
 1) `src/lib/validation.ts`
-   - Added strict prompt requirement for generic agent ask action in `agentRunSchema`.
+    - Added strict prompt requirement for generic agent ask action in `agentRunSchema`.
 
 2) `scripts/smoke-test.mjs`
    - Made company about matcher robust for multiple copy variants.
@@ -114,11 +112,21 @@ None.
    - Added a full NVIDIA introduction page at `/integrations/nvidia` with context for NIM/Omniverse pathways and links to `/integrations/nvidia-simready` and API references.
 
 4) `AUDIT.md`
-   - Refreshed architecture, command outcomes, risk log, and deployment verification status.
+    - Refreshed architecture, command outcomes, risk log, and deployment verification status.
+
+5) `src/app/api/integrations/nvidia-simready/run/route.ts`
+   - Added rate limiting for SimReady rerun endpoint in line with existing mutation protection model.
+
+6) `src/lib/seed.ts`
+   - Cleaned seeded operational content to remove encoding artifacts so the demo and workspace copy read professionally.
+
+7) `scripts/smoke-test.mjs`
+   - Added endpoint validation coverage for `/api/integrations/nvidia-simready/run` acceptance/prerequisite responses.
+   - Hardened the endpoint response parsing path for optional status checks.
 
 ### Validation and deployment cycle
 - Re-ran: `npm run lint`, `npm run build`, `npm run test:smoke`.
-- Deployed to Vercel with updated URL alias update.
+- Deployed to Vercel with updated production URL `https://aurelean-main-knpxtrlao-monsieur-app.vercel.app` and alias `https://aurelean-main.vercel.app`.
 
 ## 7) Remaining risks and follow-up tasks
 
@@ -151,7 +159,7 @@ None.
   - RFQ detail/inbox flow
   - award requires approval intent
   - memory query and notifications
-- `/integrations/nvidia` redirects and renders to `/integrations/nvidia-simready`.
+- `/integrations/nvidia` renders the NVIDIA integration introduction and provides navigation to `/integrations/nvidia-simready` and related developer/API routes.
 - `/integrations/nvidia` renders an NVIDIA integration introduction with clear call-to-action into SimReady and developer docs.
 - Marketplace:
   - search/sort/filter
@@ -175,7 +183,7 @@ None.
 
 ## 9) Live deployment
 
-- Production deployment URL: https://aurelean-main-knb349540-monsieur-app.vercel.app
-- Latest production deployment URL: https://aurelean-main-lukn05bzk-monsieur-app.vercel.app
+- Primary production deployment URL: https://aurelean-main-knpxtrlao-monsieur-app.vercel.app
 - Aliased domain: https://aurelean-main.vercel.app
-- Verification note: both production URLs in this workspace are currently protected by platform auth for this environment; local checks remain green on `http://127.0.0.1:3000`.
+- Verification note: the production deployment is currently protected by platform auth for this session; local checks remain green on `http://127.0.0.1:3000`.
+- Current redeploy URL: https://aurelean-main-knpxtrlao-monsieur-app.vercel.app

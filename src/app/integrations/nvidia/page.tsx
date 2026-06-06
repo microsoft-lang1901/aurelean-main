@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ArrowRight, Cpu, FileCheck2, Gauge, ShieldCheck } from "lucide-react";
 import { PublicShell } from "@/components/SiteChrome";
 import { simReadyPipelineSummary } from "@/lib/nvidia-simready";
+import { NvidiaSimReadyRerunClient } from "@/components/NvidiaSimReadyRerunClient";
 
 export const metadata: Metadata = {
   title: "NVIDIA Integration",
@@ -42,6 +43,11 @@ export default function NvidiaIntegrationPage() {
             </p>
             <p>Final USD handoff: {simReadyPipelineSummary.finalUsd}</p>
           </div>
+          <div className="feature-card">
+            <h2 className="h-md card-title">Operational control</h2>
+            <p>Trigger an assisted rerun after pipeline credentials are configured.</p>
+            <NvidiaSimReadyRerunClient />
+          </div>
         </div>
       </section>
       <section className="section">
@@ -76,4 +82,3 @@ export default function NvidiaIntegrationPage() {
     </PublicShell>
   );
 }
-

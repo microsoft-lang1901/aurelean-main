@@ -54,6 +54,7 @@ export default function DevelopersPage() {
             <Endpoint method="POST" path="/api/agents/run" text="Run the agentic operating layer" />
             <Endpoint method="GET" path="/api/health" text="Check persistence and AI integration readiness" />
             <Endpoint method="GET" path="/api/integrations/nvidia-simready" text="Read CAD-to-SimReady pipeline status and rerun requirements" />
+            <Endpoint method="POST" path="/api/integrations/nvidia-simready/run" text="Request a controlled NVIDIA SimReady rerun (requires configured endpoints and optional auth guard)." />
           </div>
           <p style={{ marginTop: 16 }}>
             Production hardening mode: when <code>AURELEAN_REQUIRE_AUTH=true</code>, mutation routes
