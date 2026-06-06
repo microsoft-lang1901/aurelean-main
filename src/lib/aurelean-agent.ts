@@ -59,9 +59,34 @@ const procurementInputGuardrail = {
   runInParallel: false
 };
 
-function serializeLeanState(state: AureleanState) {
+function textMatches(text: string, query: string) {
+  return query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((word) => word.length > 3)
+    .some((word) => text.toLowerCase().includes(word));
+}
+
+function serializeLeanState(state: AureleanState, query = "") {
+  const suppliers = query
+    ? state.suppliers.filter((supplier) =>
+        textMatches(`${supplier.name} ${supplier.country} ${supplier.category} ${supplier.material}`, query)
+      )
+    : state.suppliers;
+  const rfqs = query
+    ? state.rfqs.filter((rfq) =>
+        textMatches(`${rfq.id} ${rfq.supplierName} ${rfq.material} ${rfq.project}`, query)
+      )
+    : state.rfqs;
+  const rfqIds = new Set(rfqs.map((rfq) => rfq.id));
+  const memories = query
+    ? state.memories.filter((memory) =>
+        textMatches(`${memory.title} ${memory.body} ${memory.entities.join(" ")}`, query)
+      )
+    : state.memories;
+
   return {
-    suppliers: state.suppliers.map((supplier) => ({
+    suppliers: (suppliers.length ? suppliers : state.suppliers).slice(0, 8).map((supplier) => ({
       id: supplier.id,
       name: supplier.name,
       country: supplier.country,
@@ -77,7 +102,7 @@ function serializeLeanState(state: AureleanState) {
       stage: supplier.stage,
       certifications: supplier.certifications
     })),
-    rfqs: state.rfqs.map((rfq) => ({
+    rfqs: (rfqs.length ? rfqs : state.rfqs).slice(0, 6).map((rfq) => ({
       id: rfq.id,
       supplierId: rfq.supplierId,
       supplierName: rfq.supplierName,
@@ -88,8 +113,8 @@ function serializeLeanState(state: AureleanState) {
       project: rfq.project,
       targetDelivery: rfq.targetDelivery
     })),
-    bids: state.bids,
-    memories: state.memories.slice(0, 12)
+    bids: state.bids.filter((bid) => !rfqIds.size || rfqIds.has(bid.rfqId)).slice(0, 8),
+    memories: (memories.length ? memories : state.memories).slice(0, 8)
   };
 }
 
@@ -692,7 +717,7 @@ export async function runAureleanAgent(input: AgentRunInput): Promise<AgentRunDa
   }
 
   const state = await getState();
-  const context = JSON.stringify(serializeLeanState(state), null, 2);
+  const context = JSON.stringify(serializeLeanState(state, input.prompt), null, 2);
   const prompt = `${input.prompt}\n\nAURELEAN current operating context:\n${context}`;
 
   if (!process.env.OPENAI_API_KEY) {

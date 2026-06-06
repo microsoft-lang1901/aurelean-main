@@ -37,7 +37,7 @@ export function SiteNav() {
         </nav>
         <div className="nav-right">
           <Link className="signin" href="/workspace">
-            Sign in
+            Demo workspace
           </Link>
           <Link className="btn btn-gold" href="/request-access">
             Request Access
@@ -66,7 +66,8 @@ export function Footer() {
               ["Overview", "/platform"],
               ["Trade", "/trade"],
               ["Intelligence", "/intelligence"],
-              ["AI Agent", "/ai-agent"]
+              ["AI Agent", "/ai-agent"],
+              ["Integrations", "/integrations"]
             ]}
           />
           <FooterList
@@ -92,6 +93,7 @@ export function Footer() {
             items={[
               ["Developers", "/developers"],
               ["Documentation", "/resources/documentation"],
+              ["NVIDIA SimReady", "/integrations/nvidia-simready"],
               ["Security", "/security"],
               ["Privacy", "/privacy"]
             ]}

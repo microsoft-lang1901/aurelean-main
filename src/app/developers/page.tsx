@@ -1,6 +1,13 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import { PublicShell } from "@/components/SiteChrome";
+
+export const metadata: Metadata = {
+  title: "Developers",
+  description:
+    "Review the AURELEAN API surface for suppliers, RFQs, awards, samples, memory queries, and agent runs."
+};
 
 export default function DevelopersPage() {
   return (
@@ -45,6 +52,31 @@ export default function DevelopersPage() {
             <Endpoint method="POST" path="/api/suppliers/{id}/sample" text="Create sample requests" />
             <Endpoint method="POST" path="/api/rfqs/{id}/award" text="Award a bid" />
             <Endpoint method="POST" path="/api/agents/run" text="Run the agentic operating layer" />
+            <Endpoint method="GET" path="/api/health" text="Check persistence and AI integration readiness" />
+            <Endpoint method="GET" path="/api/integrations/nvidia-simready" text="Read CAD-to-SimReady pipeline status and rerun requirements" />
+          </div>
+        </div>
+      </section>
+      <section className="section" style={{ background: "var(--paper-1)" }}>
+        <div className="wrap grid-2">
+          <div>
+          <div className="eyebrow">AI integration</div>
+          <h2 className="h-lg" style={{ marginTop: 14 }}>OpenAI-compatible endpoint configuration.</h2>
+          <p className="lead">
+            AURELEAN supports `OPENAI_BASE_URL` for compatible inference
+            providers and a named NVIDIA NIM configuration path with
+            `NVIDIA_NIM_BASE_URL`, `NVIDIA_NIM_API_KEY`, and `NVIDIA_NIM_MODEL`.
+          </p>
+          </div>
+          <div>
+            <div className="eyebrow">Simulation integration</div>
+            <h2 className="h-lg" style={{ marginTop: 14 }}>NVIDIA Omniverse SimReady readiness.</h2>
+            <p className="lead">
+              CAD-to-SimReady status is exposed through a read-only endpoint and
+              integration page. Configure `RENDER_ENDPOINT` and
+              `CONTENT_AGENTS_*` before rerunning render or property assignment
+              workflows.
+            </p>
           </div>
         </div>
       </section>

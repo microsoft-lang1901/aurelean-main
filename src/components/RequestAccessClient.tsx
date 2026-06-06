@@ -16,6 +16,8 @@ export function RequestAccessClient() {
     lastName: "",
     email: "",
     company: "",
+    procurementOwner: "",
+    securityContact: "",
     volume: "Under €1M",
     notes: "",
     sourcing: [] as string[],
@@ -40,7 +42,36 @@ export function RequestAccessClient() {
     });
   }
 
+  function validateStep(nextStep?: number) {
+    setMessage("");
+    if (step === 0) {
+      if (!form.email.trim() || !form.company.trim()) {
+        setMessage("Work email and company are required.");
+        return false;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+        setMessage("Please enter a valid work email address.");
+        return false;
+      }
+      if (/(gmail|yahoo|hotmail|outlook)\./i.test(form.email.trim())) {
+        setMessage("Please use your company email address.");
+        return false;
+      }
+    }
+    if (step === 1 && form.sourcing.length === 0) {
+      setMessage("Select at least one sourcing category.");
+      return false;
+    }
+    if (step === 2 && form.layers.length === 0) {
+      setMessage("Select at least one platform layer.");
+      return false;
+    }
+    if (typeof nextStep === "number") setStep(nextStep);
+    return true;
+  }
+
   async function submit() {
+    if (!validateStep()) return;
     setBusy(true);
     setMessage("");
     const response = await fetch("/api/request-access", {
@@ -91,6 +122,8 @@ export function RequestAccessClient() {
                   </div>
                   <Field label="Work email" type="email" value={form.email} onChange={(v) => setValue("email", v)} />
                   <Field label="Company" value={form.company} onChange={(v) => setValue("company", v)} />
+                  <Field label="Procurement owner" value={form.procurementOwner} onChange={(v) => setValue("procurementOwner", v)} />
+                  <Field label="Security contact" type="email" value={form.securityContact} onChange={(v) => setValue("securityContact", v)} />
                 </>
               )}
               {step === 1 && (
@@ -120,9 +153,9 @@ export function RequestAccessClient() {
               <div className="actions">
                 {step > 0 && <button className="btn btn-ghost-lt" onClick={() => setStep((s) => s - 1)}>Back</button>}
                 {step < 2 ? (
-                  <button className="btn btn-gold" onClick={() => setStep((s) => s + 1)}>Continue</button>
+                  <button className="btn btn-gold" type="button" onClick={() => validateStep(step + 1)}>Continue</button>
                 ) : (
-                  <button className="btn btn-gold" onClick={submit} disabled={busy}>{busy ? "Submitting..." : "Request Access"}</button>
+                  <button className="btn btn-gold" type="button" onClick={submit} disabled={busy}>{busy ? "Submitting..." : "Request Access"}</button>
                 )}
               </div>
             </>

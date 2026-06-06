@@ -6,9 +6,27 @@ import type { MemoryEntry, Rfq, Supplier } from "@/types/aurelean";
 let openai: OpenAI | null = null;
 
 function getOpenAI() {
-  if (!process.env.OPENAI_API_KEY) return null;
-  openai ??= new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const apiKey = process.env.NVIDIA_NIM_API_KEY || process.env.OPENAI_API_KEY;
+  const baseURL = process.env.NVIDIA_NIM_BASE_URL || process.env.OPENAI_BASE_URL;
+  if (!apiKey) return null;
+  openai ??= new OpenAI({ apiKey, baseURL });
   return openai;
+}
+
+function configuredModel() {
+  return process.env.NVIDIA_NIM_MODEL || process.env.OPENAI_MODEL || "gpt-5.4-mini";
+}
+
+function configuredSource() {
+  return process.env.NVIDIA_NIM_BASE_URL ? "nvidia-nim" : "openai";
+}
+
+function matchesText(text: string, query: string) {
+  return query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((word) => word.length > 3)
+    .some((word) => text.toLowerCase().includes(word));
 }
 
 export async function answerMemoryQuestion(args: {
@@ -18,11 +36,23 @@ export async function answerMemoryQuestion(args: {
   rfqs: Rfq[];
 }) {
   const client = getOpenAI();
+  const relevantMemories = args.memories.slice(0, 8);
+  const entityText = relevantMemories.flatMap((memory) => memory.entities).join(" ");
+  const relevantSuppliers = args.suppliers
+    .filter((supplier) =>
+      matchesText(`${supplier.name} ${supplier.material} ${supplier.country} ${entityText}`, args.question)
+    )
+    .slice(0, 6);
+  const relevantRfqs = args.rfqs
+    .filter((rfq) =>
+      matchesText(`${rfq.id} ${rfq.supplierName} ${rfq.material} ${rfq.project} ${entityText}`, args.question)
+    )
+    .slice(0, 6);
   const context = JSON.stringify(
     {
-      memories: args.memories.slice(0, 12),
-      suppliers: args.suppliers.slice(0, 12),
-      rfqs: args.rfqs.slice(0, 8)
+      memories: relevantMemories,
+      suppliers: relevantSuppliers.length ? relevantSuppliers : args.suppliers.slice(0, 4),
+      rfqs: relevantRfqs.length ? relevantRfqs : args.rfqs.slice(0, 4)
     },
     null,
     2
@@ -46,7 +76,7 @@ export async function answerMemoryQuestion(args: {
   try {
     const response = await client.responses.create(
       {
-        model: process.env.OPENAI_MODEL || "gpt-5.4-mini",
+        model: configuredModel(),
         input: [
           {
             role: "system",
@@ -64,7 +94,7 @@ export async function answerMemoryQuestion(args: {
 
     return {
       answer: response.output_text || "No answer generated.",
-      source: "openai" as const
+      source: configuredSource()
     };
   } catch {
     const fallback = args.memories[0];

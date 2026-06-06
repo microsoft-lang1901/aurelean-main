@@ -75,6 +75,8 @@ export type AccessRequest = {
   lastName: string;
   email: string;
   company: string;
+  procurementOwner: string;
+  securityContact: string;
   sourcing: string[];
   volume: string;
   layers: string[];
@@ -128,4 +130,4 @@ export type AgentRunData = {
 
 export type ApiResult<T> =
   | { ok: true; data: T }
-  | { ok: false; error: string };
+  | { ok: false; error: string; code?: string };

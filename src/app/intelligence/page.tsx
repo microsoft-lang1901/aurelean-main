@@ -1,6 +1,13 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Activity, Brain, Database, Radar, ShieldCheck, Sparkles } from "lucide-react";
 import { PublicShell } from "@/components/SiteChrome";
+
+export const metadata: Metadata = {
+  title: "Intelligence",
+  description:
+    "Supplier reliability, market movement, decision memory, and governance signals for procurement operations."
+};
 
 const signals = [
   ["Supplier reliability", "Live confidence scoring across response speed, compliance evidence, delivery history, and relationship stage."],

@@ -28,7 +28,7 @@ export function WorkspaceClient({ initialState }: { initialState: AureleanState 
     const response = await fetch(`/api/rfqs/${rfq.id}/award`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bidId: bid.id })
+      body: JSON.stringify({ bidId: bid.id, approvalIntent: "human-approved" })
     });
     const json = await response.json();
     if (json.ok) await refresh();
@@ -89,7 +89,7 @@ export function WorkspaceClient({ initialState }: { initialState: AureleanState 
         </div>
         <div className="ws-card">
           <strong>Atelier Voss</strong>
-          <div style={{ color: "var(--on-dk-dim)", fontSize: 12 }}>Maison workspace</div>
+          <div style={{ color: "var(--on-dk-dim)", fontSize: 12 }}>Public demo workspace</div>
         </div>
         <NavButton view="overview" current={view} setView={setView} icon={<Grid2X2 />} label="Overview" />
         <NavButton view="rfq" current={view} setView={setView} icon={<Box />} label="RFQ Inbox" badge="3" />
@@ -101,6 +101,9 @@ export function WorkspaceClient({ initialState }: { initialState: AureleanState 
         <div style={{ marginTop: "auto", color: "var(--on-dk-mut)", fontSize: 13 }}>Elise Moreau<br /><span style={{ color: "var(--on-dk-dim)" }}>Head of Sourcing</span></div>
       </aside>
       <main className="appmain">
+        <div className="demo-banner">
+          Public demo workspace. Actions are product simulations for evaluation and are not authenticated production procurement.
+        </div>
         <div className="topbar">
           <h1 className="h-md" style={{ minWidth: 210 }}>{titles[view]}</h1>
           <label className="input" style={{ maxWidth: 360, display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
@@ -224,6 +227,9 @@ function Overview({
   return (
     <div className="view-pad">
       <h2 className="h-lg">Good morning, Elise.</h2>
+      <p className="notice" style={{ marginTop: 12 }}>
+        Demo mode: this workspace shows realistic procurement flows without representing a live customer account.
+      </p>
       <p className="lead">{active} active sourcing threads · {responded} RFQs awaiting review · 5 samples in transit.</p>
       <div className="kpis" style={{ marginTop: 22 }}>
         <Kpi label="Active RFQs" value={String(active)} note="+2 this week" />

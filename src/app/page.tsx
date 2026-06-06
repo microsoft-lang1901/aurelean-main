@@ -1,7 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowRight, BarChart3, Bot, Clock, Layers, ShieldCheck } from "lucide-react";
 import { PublicShell } from "@/components/SiteChrome";
+
+export const metadata: Metadata = {
+  title: "Procurement infrastructure for agentic operations",
+  description:
+    "AURELEAN connects supplier intelligence, RFQ orchestration, operational memory, and agentic automation for global procurement teams."
+};
 
 export default function HomePage() {
   return (

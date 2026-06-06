@@ -58,6 +58,11 @@ button {
   cursor: pointer;
 }
 
+*:focus-visible {
+  outline: 2px solid var(--gold-2);
+  outline-offset: 3px;
+}
+
 .wrap {
   max-width: var(--maxw);
   margin: 0 auto;
@@ -363,6 +368,82 @@ h3 {
 
 .link-card {
   display: block;
+}
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  color: var(--gold-3);
+  font-weight: 700;
+}
+
+.on-dark-panel {
+  border-color: rgba(238, 222, 189, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--on-dk);
+  padding: 24px;
+}
+
+.on-dark-panel p {
+  color: var(--on-dk-mut);
+}
+
+.stack {
+  display: grid;
+  gap: 16px;
+}
+
+.timeline-list {
+  display: grid;
+  gap: 14px;
+}
+
+.timeline-row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 18px;
+  align-items: start;
+  padding: 22px;
+  border: 1px solid var(--line-lt);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.stage-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line-lt);
+  border-radius: 999px;
+  background: var(--paper);
+}
+
+.stage-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.stage-passed {
+  color: #1f6d4a;
+}
+
+.stage-failed,
+.stage-blocked {
+  color: #8a3b2f;
+}
+
+.stage-ready {
+  color: var(--gold-3);
+}
+
+.mono-line {
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 13px;
+  word-break: break-word;
 }
 
 .image-panel {
@@ -689,6 +770,16 @@ h3 {
   background: var(--paper);
   border-bottom: 1px solid var(--line-lt);
   padding-inline: 26px;
+}
+
+.demo-banner {
+  flex: none;
+  background: rgba(196, 160, 100, 0.16);
+  border-bottom: 1px solid rgba(196, 160, 100, 0.28);
+  color: var(--on-lt);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 26px;
 }
 
 .agent-console {

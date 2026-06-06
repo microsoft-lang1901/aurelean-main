@@ -5,6 +5,8 @@ const checks = [
   ["GET", "/trade", null],
   ["GET", "/workspace", null],
   ["GET", "/api/bootstrap", null],
+  ["GET", "/api/health", null],
+  ["GET", "/api/integrations/nvidia-simready", null],
   ["GET", "/api/rfqs", null],
   [
     "POST",
@@ -12,8 +14,10 @@ const checks = [
     {
       firstName: "Smoke",
       lastName: "Test",
-      email: "smoke@aurelean.test",
+      email: "smoke@aurelean.example",
       company: "Smoke Maison",
+      procurementOwner: "Elise Moreau",
+      securityContact: "security@aurelean.example",
       sourcing: ["Luxury textiles"],
       volume: "Under €1M",
       layers: ["Trade"],
@@ -57,7 +61,8 @@ const checks = [
     "POST",
     "/api/rfqs/RFQ-2041/award",
     {
-      bidId: "BID-9001"
+      bidId: "BID-9001",
+      approvalIntent: "human-approved"
     }
   ],
   [
@@ -80,6 +85,44 @@ const checks = [
   ]
 ];
 
+const negativeChecks = [
+  [
+    "POST",
+    "/api/request-access",
+    {
+      email: "smoke@gmail.com",
+      company: "Smoke Maison"
+    },
+    422
+  ],
+  [
+    "POST",
+    "/api/suppliers/cerruti/sample",
+    {
+      material: "Super 150s worsted wool",
+      quantity: ""
+    },
+    422
+  ],
+  [
+    "POST",
+    "/api/rfqs/RFQ-2041/award",
+    {
+      bidId: "BID-9001"
+    },
+    403
+  ],
+  [
+    "POST",
+    "/api/agents/run",
+    {
+      action: "invalid_action",
+      prompt: "Compare bids"
+    },
+    422
+  ]
+];
+
 for (const [method, path, body] of checks) {
   const response = await fetch(`${base}${path}`, {
     method,
@@ -94,4 +137,17 @@ for (const [method, path, body] of checks) {
     if (!json.ok) throw new Error(`${method} ${path} returned ${json.error}`);
   }
   console.log(`OK ${method} ${path}`);
+}
+
+for (const [method, path, body, expectedStatus] of negativeChecks) {
+  const response = await fetch(`${base}${path}`, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  const json = await response.json();
+  if (response.status !== expectedStatus || json.ok !== false) {
+    throw new Error(`${method} ${path} expected ${expectedStatus} validation failure`);
+  }
+  console.log(`OK ${method} ${path} rejected invalid input`);
 }

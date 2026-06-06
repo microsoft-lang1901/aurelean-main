@@ -1,4 +1,4 @@
-import { fail, ok, readJson } from "@/lib/api";
+import { cleanString, fail, ok, readJson } from "@/lib/api";
 import { createRfq, listBids, listRfqs, listSuppliers } from "@/lib/store";
 
 type Payload = {
@@ -17,19 +17,25 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await readJson<Payload>(request);
-    if (!body.supplierId || !body.material || !body.quantity) {
-      return fail("Supplier, material, and quantity are required.");
+    const supplierId = cleanString(body.supplierId, 80);
+    const material = cleanString(body.material, 160);
+    const quantity = cleanString(body.quantity, 80);
+    const targetDelivery = cleanString(body.targetDelivery, 120);
+
+    if (!supplierId || !material || !quantity || !targetDelivery) {
+      return fail("Supplier, material, quantity, and target delivery are required.", 422, "missing_required_fields");
     }
-    const supplier = (await listSuppliers()).find((item) => item.id === body.supplierId);
-    if (!supplier) return fail("Supplier not found.", 404);
+    const supplier = (await listSuppliers()).find((item) => item.id === supplierId);
+    if (!supplier) return fail("Supplier not found.", 404, "supplier_not_found");
+    if (!supplier.verified) return fail("RFQs can only be created for verified suppliers.", 403, "supplier_not_verified");
 
     const rfq = await createRfq({
       supplierId: supplier.id,
       supplierName: supplier.name,
-      material: body.material,
-      quantity: body.quantity,
-      targetDelivery: body.targetDelivery ?? "",
-      specifications: body.specifications
+      material,
+      quantity,
+      targetDelivery,
+      specifications: cleanString(body.specifications, 1000)
     });
 
     return Response.json(ok(rfq));

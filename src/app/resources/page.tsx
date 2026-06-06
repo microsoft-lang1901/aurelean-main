@@ -1,6 +1,13 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { BookOpen, Code2, FileText, LockKeyhole, Network, ShieldCheck } from "lucide-react";
 import { PublicShell } from "@/components/SiteChrome";
+
+export const metadata: Metadata = {
+  title: "Resources",
+  description:
+    "AURELEAN product, technical, security, privacy, and documentation resources."
+};
 
 const docs = [
   ["Backend routes", "Bootstrap, RFQ creation, awards, saved suppliers, samples, memory query, and agent runs."],

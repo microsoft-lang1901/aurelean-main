@@ -1,4 +1,4 @@
-import { fail, ok, readJson } from "@/lib/api";
+import { cleanString, fail, ok, readJson } from "@/lib/api";
 import { createSampleRequest, getSupplier } from "@/lib/store";
 
 type Payload = {
@@ -15,14 +15,18 @@ export async function POST(
   try {
     const { id } = await context.params;
     const supplier = await getSupplier(id);
-    if (!supplier) return fail("Supplier not found.", 404);
+    if (!supplier) return fail("Supplier not found.", 404, "supplier_not_found");
+    if (!supplier.verified) return fail("Samples can only be requested from verified suppliers.", 403, "supplier_not_verified");
     const body = await readJson<Payload>(request);
+    const material = cleanString(body.material, 160) || supplier.material;
+    const quantity = cleanString(body.quantity, 80);
+    if (!quantity) return fail("Sample quantity is required.", 422, "missing_quantity");
     const sample = await createSampleRequest({
       supplierId: supplier.id,
-      material: body.material ?? supplier.material,
-      quantity: body.quantity ?? "1 sample set",
-      targetDelivery: body.targetDelivery ?? "",
-      specifications: body.specifications ?? ""
+      material,
+      quantity,
+      targetDelivery: cleanString(body.targetDelivery, 120),
+      specifications: cleanString(body.specifications, 1000)
     });
     return Response.json(ok(sample));
   } catch (error) {

@@ -1,6 +1,13 @@
 import Link from "next/link";
-import { ArrowRight, Bot, FileCheck2, GitBranch, ShieldCheck, Sparkles } from "lucide-react";
+import type { Metadata } from "next";
+import { ArrowRight, Bot, Cpu, FileCheck2, GitBranch, ShieldCheck, Sparkles } from "lucide-react";
 import { PublicShell } from "@/components/SiteChrome";
+
+export const metadata: Metadata = {
+  title: "AI Agent",
+  description:
+    "AURELEAN AI coordinates supplier search, RFQ orchestration, bid comparison, memory query, and approval-gated recommendations."
+};
 
 const workflows = [
   ["Supplier search", "Find verified suppliers by material, country, certification, and operating context."],
@@ -53,6 +60,28 @@ export default function AiAgentPage() {
               <p>{text}</p>
             </div>
           ))}
+        </div>
+      </section>
+      <section className="section" style={{ background: "var(--paper-1)" }}>
+        <div className="wrap grid-2" style={{ alignItems: "center" }}>
+          <div>
+            <div className="eyebrow">Inference integrations</div>
+            <h2 className="h-lg" style={{ marginTop: 14 }}>NVIDIA NIM-ready for enterprise deployment paths.</h2>
+            <p className="lead">
+              AURELEAN can point its memory assistant at OpenAI-compatible
+              inference endpoints, including NVIDIA NIM microservices, when a
+              client needs self-hosted or NVIDIA-accelerated model infrastructure.
+            </p>
+          </div>
+          <div className="feature-card">
+            <Cpu />
+            <h3 className="h-md card-title">Configurable model endpoint</h3>
+            <p>
+              Use `NVIDIA_NIM_BASE_URL`, `NVIDIA_NIM_API_KEY`, and
+              `NVIDIA_NIM_MODEL` during deployment to route supported memory
+              inference through a NIM-compatible endpoint.
+            </p>
+          </div>
         </div>
       </section>
     </PublicShell>

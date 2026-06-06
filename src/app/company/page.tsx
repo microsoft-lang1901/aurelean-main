@@ -1,6 +1,13 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Building2, Globe2, Mail, Newspaper, ShieldCheck, Users } from "lucide-react";
 import { PublicShell } from "@/components/SiteChrome";
+
+export const metadata: Metadata = {
+  title: "Company",
+  description:
+    "AURELEAN company overview, careers, newsroom, and contact for procurement operating infrastructure."
+};
 
 export default function CompanyPage() {
   return (

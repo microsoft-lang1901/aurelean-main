@@ -90,6 +90,18 @@ export async function getState() {
   return readFileState();
 }
 
+export async function getPublicState() {
+  const state = await getState();
+  return {
+    suppliers: state.suppliers,
+    rfqs: state.rfqs,
+    bids: state.bids,
+    memories: state.memories,
+    accessRequests: [],
+    sampleRequests: []
+  } satisfies AureleanState;
+}
+
 export async function updateState<T>(
   mutator: (state: AureleanState) => T | Promise<T>
 ) {

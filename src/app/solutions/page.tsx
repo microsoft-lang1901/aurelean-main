@@ -1,6 +1,13 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowRight, Factory, Gem, Landmark, Shirt } from "lucide-react";
 import { PublicShell } from "@/components/SiteChrome";
+
+export const metadata: Metadata = {
+  title: "Solutions",
+  description:
+    "AURELEAN solutions for luxury textiles, furnishings, materials, and manufacturing procurement workflows."
+};
 
 const solutions = [
   ["textiles", "Luxury textiles", "Source the world's finest cloth with provenance built in."],

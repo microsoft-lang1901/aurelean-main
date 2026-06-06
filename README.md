@@ -5,6 +5,7 @@ AURELEAN is an AI-native procurement workspace for supplier intelligence, RFQ or
 ## What Is Built
 
 - Public landing pages: Home, Platform, Solutions, Trade, Developers, Request Access.
+- Integration pages: NVIDIA Omniverse CAD-to-SimReady status, NVIDIA NIM-ready inference, and deployment readiness.
 - Marketplace: search, category filters, sorting, supplier save state, supplier detail pages.
 - Supplier workflow: RFQ creation and sample request capture.
 - Workspace: overview, RFQ inbox, bid comparison and award action, supplier pipeline, operational memory.
@@ -28,6 +29,14 @@ Copy `.env.example` to `.env.local` and set values as needed.
 
 - `OPENAI_API_KEY`: powers `/api/memory/query`.
 - `OPENAI_MODEL`: optional model override for memory and agent workflows. Defaults to `gpt-5.4-mini`.
+- `OPENAI_BASE_URL`: optional OpenAI-compatible inference endpoint.
+- `NVIDIA_NIM_API_KEY`: optional NVIDIA NIM API key for NIM-compatible memory inference.
+- `NVIDIA_NIM_BASE_URL`: optional NVIDIA NIM endpoint URL.
+- `NVIDIA_NIM_MODEL`: optional NVIDIA NIM model override.
+- `RENDER_ENDPOINT`: optional render backend endpoint for NVIDIA Omniverse/OVRTX pipeline reruns.
+- `CONTENT_AGENTS_ENDPOINT`: optional Content Agents service endpoint for material and physics property assignment.
+- `CONTENT_AGENTS_API_KEY`: server-only Content Agents credential.
+- `SIMREADY_PYTHON_RUNTIME`: optional runtime label shown in integration readiness responses.
 - `NEXT_PUBLIC_SUPABASE_URL`: Supabase project URL.
 - `SUPABASE_SERVICE_ROLE_KEY`: server-only key used to persist app state.
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: reserved for auth/client features.
@@ -63,6 +72,19 @@ Browser verification should cover:
 
 `POST /api/agents/run` is the AURELEAN orchestration path. It uses the OpenAI Agents SDK when `OPENAI_API_KEY` is present and falls back to deterministic local workflow logic if the model call is unavailable.
 
+`POST /api/memory/query` can use OpenAI-compatible inference endpoints. For NVIDIA-accelerated enterprise deployment paths, set `NVIDIA_NIM_BASE_URL`, `NVIDIA_NIM_API_KEY`, and `NVIDIA_NIM_MODEL` to route supported memory inference through a NIM-compatible endpoint.
+
+## NVIDIA CAD-to-SimReady Integration
+
+`GET /api/integrations/nvidia-simready` exposes the latest known CAD-to-SimReady pipeline status for client intake. The current `minimal_mesh.stl` run passed conversion, minimum USD, Omniverse asset validation, geometry validation, and physics validation. SimReady profile validation and rendering remain blocked pending richer simulation evidence and deployment credentials.
+
+Before rerunning the full pipeline, configure:
+
+- `RENDER_ENDPOINT` or another usable render backend.
+- `CONTENT_AGENTS_ENDPOINT` and `CONTENT_AGENTS_API_KEY` for property assignment.
+- Grasp candidates or point-cloud evidence for FET005/GSP.001.
+- Multi-component rigid-body candidates for RB.MB.001.
+
 Agent structure:
 
 - AURELEAN Orchestrator: routes requests across sourcing, RFQ, bid, risk, and memory workflows.
@@ -86,5 +108,14 @@ The project is designed for Vercel. Required production env vars:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+
+Optional production integration env vars:
+
+- `NVIDIA_NIM_BASE_URL`
+- `NVIDIA_NIM_API_KEY`
+- `NVIDIA_NIM_MODEL`
+- `RENDER_ENDPOINT`
+- `CONTENT_AGENTS_ENDPOINT`
+- `CONTENT_AGENTS_API_KEY`
 
 Push to GitHub, import into Vercel, add env vars, and deploy.

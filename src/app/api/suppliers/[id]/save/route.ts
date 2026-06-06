@@ -7,6 +7,6 @@ export async function POST(
 ) {
   const { id } = await context.params;
   const supplier = await toggleSupplierSaved(id);
-  if (!supplier) return fail("Supplier not found.", 404);
+  if (!supplier) return fail("Supplier not found.", 404, "supplier_not_found");
   return Response.json(ok(supplier));
 }
