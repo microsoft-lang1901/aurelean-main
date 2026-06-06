@@ -66,7 +66,7 @@ Notes / blockers:
 - None.
 
 ### High
-- Footer, platform, intelligence, company, and workspace navigation now resolve to implemented pages and do not degrade to incorrect fallbacks.
+- Footer, platform, intelligence, company, dashboard/sign-in aliases, and workspace navigation now resolve to implemented pages and do not degrade to incorrect fallbacks.
 - NVIDIA integration introduction and SimReady status pages are now present and linked from integrations and developer references.
 
 ### Medium
@@ -124,6 +124,15 @@ Notes / blockers:
    - Added endpoint validation coverage for `/api/integrations/nvidia-simready/run` acceptance/prerequisite responses.
    - Hardened the endpoint response parsing path for optional status checks.
 
+8) `src/app/dashboard/page.tsx`
+   - Added `/dashboard` compatibility route to redirect to `/workspace`.
+
+9) `src/app/signin/page.tsx`
+   - Added primary sign-in alias route resolving to `/workspace`.
+
+10) `src/app/sign-in/page.tsx`, `src/app/login/page.tsx`
+   - Added alias compatibility routes for sign-in and login entry points.
+
 ### Validation and deployment cycle
 - Re-ran: `npm run lint`, `npm run build`, `npm run test:smoke`.
 - Deployed to Vercel with updated production URL `https://aurelean-main-knpxtrlao-monsieur-app.vercel.app` and alias `https://aurelean-main.vercel.app`.
@@ -149,6 +158,8 @@ Notes / blockers:
 - Homepage: hero clarity, CTA flow, trust signals
 - Header and footer path coverage:
   - `/platform`, `/trade`, `/intelligence`, `/ai-agent`, `/integrations`, `/developers`, `/resources`, `/company`, `/security`, `/privacy`
+- Sign-in/dashboard compatibility paths:
+  - `/dashboard`, `/signin`, `/sign-in`, `/login`
 - Request-access:
   - required fields
   - work-email block

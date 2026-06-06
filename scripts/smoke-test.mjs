@@ -3,6 +3,7 @@ const base = process.env.SMOKE_BASE_URL ?? "http://127.0.0.1:3000";
 const pageChecks = [
   // Public pages
   ["GET", "/"],
+  ["GET", "/dashboard"],
   ["GET", "/platform"],
   ["GET", "/trade"],
   ["GET", "/trade/cerruti"],
@@ -14,6 +15,9 @@ const pageChecks = [
   ["GET", "/developers"],
   ["GET", "/resources"],
   ["GET", "/resources/documentation"],
+  ["GET", "/signin"],
+  ["GET", "/sign-in"],
+  ["GET", "/login"],
   ["GET", "/integrations"],
   ["GET", "/integrations/nvidia-simready"],
   ["GET", "/integrations/nvidia"],
