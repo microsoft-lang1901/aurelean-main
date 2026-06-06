@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 
 const sourcingOptions = ["Luxury textiles", "Furnishings", "Materials", "Manufacturing"];
 const layerOptions = ["Trade", "Intelligence", "AURELEAN AI", "Infrastructure"];
+const workEmailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const consumerDomainPattern = /(gmail|yahoo|hotmail|outlook)\./i;
 
 export function RequestAccessClient() {
   const [step, setStep] = useState(0);
@@ -53,13 +55,23 @@ export function RequestAccessClient() {
         setMessage("Use letters only for names.");
         return false;
       }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      if (!workEmailPattern.test(form.email.trim())) {
         setMessage("Please enter a valid work email address.");
         return false;
       }
-      if (/(gmail|yahoo|hotmail|outlook)\./i.test(form.email.trim())) {
+      if (consumerDomainPattern.test(form.email.trim())) {
         setMessage("Please use your company email address.");
         return false;
+      }
+      if (form.securityContact.trim()) {
+        if (!workEmailPattern.test(form.securityContact.trim())) {
+          setMessage("Security contact must be a valid email address.");
+          return false;
+        }
+        if (consumerDomainPattern.test(form.securityContact.trim())) {
+          setMessage("Security contact should be a company email address.");
+          return false;
+        }
       }
     }
     if (step === 1 && form.sourcing.length === 0) {

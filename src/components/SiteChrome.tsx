@@ -35,6 +35,22 @@ export function SiteNav() {
             </Link>
           ))}
         </nav>
+        <details className="mobile-menu">
+          <summary>Menu</summary>
+          <div className="mobile-menu-panel" role="navigation" aria-label="Mobile navigation">
+            {primaryLinks.map((link) => (
+              <Link key={`mobile-${link.href}`} href={link.href}>
+                {link.label}
+              </Link>
+            ))}
+            <Link className="mobile-signin" href="/workspace">
+              Demo workspace
+            </Link>
+            <Link className="btn btn-gold" href="/request-access">
+              Request Access
+            </Link>
+          </div>
+        </details>
         <div className="nav-right">
           <Link className="signin" href="/workspace">
             Demo workspace

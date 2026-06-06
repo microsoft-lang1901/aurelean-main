@@ -141,6 +141,10 @@ button {
   gap: 18px;
 }
 
+.mobile-menu {
+  display: none;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -1038,6 +1042,49 @@ h3 {
   .nav-links,
   .signin {
     display: none;
+  }
+
+  .mobile-menu {
+    display: block;
+    margin-left: auto;
+    color: var(--on-dk);
+  }
+
+  .mobile-menu summary {
+    list-style: none;
+    cursor: pointer;
+    color: var(--on-dk-mut);
+    font-size: 13px;
+  }
+
+  .mobile-menu summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-menu-panel {
+    position: absolute;
+    right: var(--pad);
+    top: 66px;
+    z-index: 60;
+    width: min(320px, calc(100vw - var(--pad)));
+    background: var(--ink);
+    border: 1px solid rgba(244, 240, 232, 0.16);
+    border-radius: var(--radius);
+    padding: 12px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .mobile-menu-panel a {
+    color: var(--on-dk);
+    border: 1px solid rgba(244, 240, 232, 0.12);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: rgba(247, 242, 232, 0.05);
+  }
+
+  .mobile-menu-panel .mobile-signin {
+    margin-top: 4px;
   }
 
   .listing,
