@@ -94,4 +94,12 @@ export const agentRunSchema = z.object({
   quantity: optionalSafeText(maxQuantityLength).default(""),
   targetDelivery: optionalSafeText(maxDeliveryLength).default(""),
   specifications: optionalSafeText(maxSpecsLength).default("")
+}).superRefine((value, ctx) => {
+  if ((value.action === "ask" || value.action === undefined) && value.prompt.trim().length === 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["prompt"],
+      message: "A prompt is required when asking for a generic agent answer."
+    });
+  }
 });

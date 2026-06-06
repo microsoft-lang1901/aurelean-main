@@ -1,6 +1,6 @@
 const base = process.env.SMOKE_BASE_URL ?? "http://127.0.0.1:3000";
 
-const checks = [
+const pageChecks = [
   // Public pages
   ["GET", "/"],
   ["GET", "/platform"],
@@ -37,9 +37,31 @@ const checks = [
   ["GET", "/api/rfqs"]
 ];
 
+const htmlAssertions = [
+  ["/", "AI-native procurement infrastructure"],
+  ["/platform", "One operating layer for sourcing"],
+  ["/trade", "Verified mills"],
+  ["/trade/cerruti", "Lanificio Cerruti"],
+  ["/intelligence", "Supplier intelligence with memory"],
+  ["/workspace", "Public demo workspace"],
+  ["/ai-agent", "Agentic procurement with approval boundaries"],
+  ["/developers", "Build on the AURELEAN protocol"],
+  ["/resources/documentation", "AURELEAN product and API map"],
+  ["/integrations/nvidia-simready", "blocked-needs-rerun"],
+  ["/company/about", ["Quiet infrastructure", "demanding procurement organizations", "AURELEAN is infrastructure"]],
+  ["/solutions/luxury-textiles", "Luxury Textiles"],
+  ["/security", "Governed procurement automation"],
+  ["/privacy", "Product data scoped to sourcing workflows"],
+  ["/request-access", "Request access"]
+];
+
+const apiShapeChecks = [
+  ["/api/health", ["mode", "supabaseConfigured", "openAIConfigured", "mutationAuthRequired"]],
+  ["/api/integrations/nvidia-simready", ["status", "finalUsd", "stages"]]
+];
+
 const postChecks = [
   [
-    "POST",
     "/api/request-access",
     {
       firstName: "Smoke",
@@ -55,19 +77,16 @@ const postChecks = [
     }
   ],
   [
-    "POST",
     "/api/memory/query",
     {
       question: "Why did we choose Cerruti?"
     }
   ],
   [
-    "POST",
     "/api/suppliers/cerruti/save",
     {}
   ],
   [
-    "POST",
     "/api/suppliers/cerruti/sample",
     {
       material: "Super 150s worsted wool",
@@ -123,6 +142,36 @@ const negativeChecks = [
   ]
 ];
 
+const malformedChecks = [
+  [
+    "POST",
+    "/api/rfqs",
+    {
+      material: "Super 150s worsted wool",
+      quantity: "120 m"
+    },
+    422
+  ],
+  [
+    "POST",
+    "/api/request-access",
+    {
+      firstName: "Smoke",
+      lastName: "Test"
+    },
+    422
+  ],
+  [
+    "POST",
+    "/api/agents/run",
+    {
+      action: "ask",
+      prompt: ""
+    },
+    422
+  ]
+];
+
 async function request(method, path, body = null, expectedStatus = null) {
   const response = await fetch(`${base}${path}`, {
     method,
@@ -137,9 +186,33 @@ async function request(method, path, body = null, expectedStatus = null) {
   return response;
 }
 
+async function requestText(path) {
+  const response = await request("GET", path);
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("text/html")) {
+    throw new Error(`Expected HTML for ${path} but received ${contentType}.`);
+  }
+  return response.text();
+}
+
+async function assertHtmlContains(path, expectedText) {
+  const text = await requestText(path);
+  if (Array.isArray(expectedText)) {
+    const matched = expectedText.some((entry) => text.toLowerCase().includes(String(entry).toLowerCase()));
+    if (!matched) {
+      throw new Error(`${path} did not contain any of expected text: ${expectedText.join(" / ")}`);
+    }
+    return;
+  }
+  if (!text.toLowerCase().includes(expectedText.toLowerCase())) {
+    throw new Error(`${path} did not contain expected text: ${expectedText}`);
+  }
+  console.log(`OK HTML ${path}`);
+}
+
 let bootstrapData = null;
 
-for (const [method, path] of checks) {
+for (const [method, path] of pageChecks) {
   const response = await request(method, path);
   if (!response.ok) {
     throw new Error(`${method} ${path} failed with ${response.status}`);
@@ -156,17 +229,37 @@ for (const [method, path] of checks) {
   console.log(`OK ${method} ${path}`);
 }
 
-for (const [method, path, body] of postChecks) {
-  const response = await request(method, path, body);
+for (const [path, expectedText] of htmlAssertions) {
+  await assertHtmlContains(path, expectedText);
+}
+
+for (const [path, requiredKeys] of apiShapeChecks) {
+  const response = await request("GET", path);
+  const json = await response.json();
+  if (!json.ok) {
+    throw new Error(`${path} returned error payload`);
+  }
+  const missing = requiredKeys.filter((key) => !Object.hasOwn(json.data, key));
+  if (missing.length > 0) {
+    throw new Error(`${path} missing expected keys: ${missing.join(", ")}`);
+  }
+  if (Array.isArray(json.data.stages) && json.data.stages.length < 1) {
+    throw new Error(`${path} stages should include execution history`);
+  }
+  console.log(`OK JSON shape ${path}`);
+}
+
+for (const [path, body] of postChecks) {
+  const response = await request("POST", path, body);
   if (!response.ok) {
     const payload = await response.clone().text();
-    throw new Error(`${method} ${path} failed with ${response.status}; ${payload}`);
+    throw new Error(`POST ${path} failed with ${response.status}; ${payload}`);
   }
   const json = await response.json();
   if (!json.ok) {
-    throw new Error(`${method} ${path} returned ${json.error}`);
+    throw new Error(`POST ${path} returned ${json.error}`);
   }
-  console.log(`OK ${method} ${path}`);
+  console.log(`OK POST ${path}`);
 }
 
 const rfqPayload = {
@@ -267,4 +360,13 @@ for (const [method, path, body, expectedStatus] of negativeChecks) {
     throw new Error(`${method} ${path} expected rejection`);
   }
   console.log(`OK ${method} ${path} rejected invalid input`);
+}
+
+for (const [method, path, body, expectedStatus] of malformedChecks) {
+  const response = await request(method, path, body, expectedStatus);
+  const json = await response.json();
+  if (json.ok !== false) {
+    throw new Error(`${method} ${path} expected validation failure`);
+  }
+  console.log(`OK ${method} ${path} rejected malformed payload`);
 }
