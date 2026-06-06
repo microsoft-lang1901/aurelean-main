@@ -54,7 +54,7 @@ Primary production risks are now mostly environment/configuration-driven:
 - `npm run lint` : pass (latest)
 - `npm run build` : pass (includes new `/integrations/nvidia`, `/integrations/nvidia-simready`, and rerun API route)
 - `npm run test:smoke` : pass against `http://127.0.0.1:3000` (including `/api/integrations/nvidia-simready/run` validation)
-- `npx vercel --prod` : pass, production deployment created `https://aurelean-main-knpxtrlao-monsieur-app.vercel.app`
+- `npx vercel --prod` : pass, production deployment created `https://aurelean-main-n01t0q71j-monsieur-app.vercel.app`
 
 Notes / blockers:
 - Vercel deployment is currently protected by platform-level auth in this environment, so anonymous automated smoke checks against deployment URLs may return `401`.
@@ -135,7 +135,7 @@ Notes / blockers:
 
 ### Validation and deployment cycle
 - Re-ran: `npm run lint`, `npm run build`, `npm run test:smoke`.
-- Deployed to Vercel with updated production URL `https://aurelean-main-knpxtrlao-monsieur-app.vercel.app` and alias `https://aurelean-main.vercel.app`.
+- Deployed to Vercel with updated production URL `https://aurelean-main-n01t0q71j-monsieur-app.vercel.app` and alias `https://aurelean-main.vercel.app`.
 
 ## 7) Remaining risks and follow-up tasks
 
@@ -194,7 +194,7 @@ Notes / blockers:
 
 ## 9) Live deployment
 
-- Primary production deployment URL: https://aurelean-main-knpxtrlao-monsieur-app.vercel.app
+- Primary production deployment URL: https://aurelean-main-n01t0q71j-monsieur-app.vercel.app
 - Aliased domain: https://aurelean-main.vercel.app
 - Verification note: the production deployment is currently protected by platform auth for this session; local checks remain green on `http://127.0.0.1:3000`.
-- Current redeploy URL: https://aurelean-main-knpxtrlao-monsieur-app.vercel.app
+- Current redeploy URL: https://aurelean-main-n01t0q71j-monsieur-app.vercel.app
