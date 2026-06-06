@@ -1,84 +1,238 @@
-# AURELEAN Audit and Delivery Handoff
+﻿# AURELEAN Audit and Delivery Handoff
 
-## 1) Objective and scope
+## 1) Executive summary
 
-Finish the remaining in-motion hardening and robustness pass, focused on:
+### Product/design health
+The AURELEAN website and application now present a complete public surface with all major product, legal, and integration pages available and routable. Core flows are discoverable from the top navigation and footer, and the workspace is clearly labeled as a demo for evaluation.
 
-- `WorkspaceClient.tsx` interaction safety and status feedback
-- Related supplier/trade/request-access client behaviors
-- Targeted API hardening for RFQ/sample/save flows and store/agent robustness
-- Handoff-ready documentation in `AUDIT.md`
+### Backend/security health
+Backend route contracts are mostly stable. Mutations are guarded and validated, with deterministic fallback behavior for inference paths and explicit user-approval checks around award execution. Remaining security posture is acceptable for a demo, but production mode should enforce authenticated mutation mode and stronger logging/observability before formal client onboarding.
 
-## 2) Architecture touched
+### Top 5 risks or opportunities
+1. **High: Public demo mutation mode in some environments** — `/api/*` mutations are public when auth guard is disabled.
+2. **Medium: Single-node/local persistence behavior** — file-based fallback state can conflict under concurrent writes.
+3. **Medium: Input validation still manual per-route** — no shared runtime schema layer; duplication remains.
+4. **Medium: Award flow test reliability** — dynamic smoke validation depends on RFQ state containing usable bids.
+5. **Low: Logging and SIEM visibility** — no structured server-side security/audit telemetry stream yet.
 
-- UI/client layer: `WorkspaceClient.tsx`, `SupplierClient.tsx`, `TradeClient.tsx`, `RequestAccessClient.tsx`
-- API layer: `rfqs` create, supplier `save`, supplier `sample`
-- Domain/store + agent layer: `store.ts`, `aurelean-agent.ts`
-- Documentation: `AUDIT.md`
+## 2) Project architecture overview
 
-## 3) Major decisions made
+### Framework
+- Next.js App Router (version 16.2.7)
+- React 19 + TypeScript
+- Turbopack-based dev/build
 
-- Kept changes minimal and low-behavioral impact: mainly busy-state guards, clearer status/error messages, and narrow validation.
-- Did not introduce new architectural abstractions or route contracts.
-- Added small in-memory rate-limiting guards to mutation endpoints already in scope to reduce accidental abuse/replay without changing API shape.
-- Kept fallback-safe behavior in `aurelean-agent` by supporting an NVIDIA NIM model/provider path and still using deterministic fallback when no provider is configured.
-- For RFQ ID generation, switched from unguarded `Math.max(...rfqs.map(...))` to filtered numeric parsing to avoid malformed-ID edge cases.
+### Routing
+- File-system routes in `src/app`
+- Page routes implemented: `/`, `/platform`, `/trade`, `/intelligence`, `/workspace`, `/ai-agent`, `/agent`, `/developers`, `/developer`, `/resources`, `/resources/documentation`, `/security`, `/privacy`, `/request-access`, `/company/*`, `/integrations`, `/integrations/nvidia-simready`, `/solutions/*`, `/trade/[id]`
+- API routes implemented: `/api/bootstrap`, `/api/health`, `/api/request-access`, `/api/rfqs`, `/api/rfqs/[id]/award`, `/api/suppliers/[id]/save`, `/api/suppliers/[id]/sample`, `/api/memory/query`, `/api/agents/run`, `/api/integrations/nvidia-simready`
 
-## 4) Implemented changes
+### Frontend structure
+- Shared chrome and layout in `src/components/SiteChrome.tsx`
+- Page sections in `src/app/*`
+- Feature/state clients in `src/components` (including `TradeClient`, `SupplierClient`, `WorkspaceClient`, `RequestAccessClient`)
 
-- Added action lock/state feedback in workspace:
-  - Operation lock for award actions (`operationBusy`)
-  - Global status banner/aria-live region
-  - Best-bid preference fallback in RFQ inbox (`bid.bestValue ?? first bid`)
-  - More explicit button disablement for non-submit actions
-- Supplier/trade request UX hardening:
-  - Added per-action busy states (`rfqBusy`, `sampleBusy`, `saveBusy`, `savingId`)
-  - Added local validation before RFQ/sample POST calls
-  - Added network/error notices and ARIA announcements
-  - Added `type="button"` to non-form actions
-- Request-access safety:
-  - Added network error catch and status fallback
-  - Preserved response-validation logic and added aria-live on inline notices
-- API hardening:
-  - RFQ create (`/api/rfqs`): per-route rate limiting
-  - Supplier sample (`/api/suppliers/{id}/sample`): per-route rate limiting
-  - Supplier save (`/api/suppliers/{id}/save`): per-route rate limiting + try/catch
-- Store/agent safety:
-  - RFQ ID generator now handles malformed IDs safely
-  - `aurelean-agent` supports `NVIDIA_NIM_MODEL` and checks `OPENAI_API_KEY` or `NVIDIA_NIM_API_KEY` as valid provider presence
+### Backend/API structure
+- Route logic in `src/app/api/*`
+- Shared API helpers in `src/lib/api.ts`
+- Mutable domain state in `src/lib/store.ts`
+- Memory/agent workflows in `src/lib/aurelean-agent.ts`
+- NVIDIA summary modeling in `src/lib/nvidia-simready.ts`
 
-## 5) Verification
+### Persistence layer
+- `data/aurelean-db.json` file fallback in local/dev runtime
+- Supabase runtime if `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` are configured (`STATE_ID = main`)
+- VERCEL fallback memory mode for non-persistent deploy scenarios
 
-### Offline checks (run)
+### Auth/session model
+- No interactive sign-in session for product demo.
+- Optional environment-controlled mutation enforcement through `AURELEAN_REQUIRE_AUTH` + `AURELEAN_API_TOKEN` in `ensureMutationAllowed`
+- Demo flow remains public but clearly labeled in UI copy and workspace header.
 
-- `npm run lint` ✅
-- `npm run build` ✅ (Next.js build successful, TS compile succeeded)
-- `npx tsc --noEmit` ✅
-- `npm run test:smoke` ✅
-  - Required one local server start (`npm run dev -- --hostname 127.0.0.1 --port 3000`) for stable checks
+### Environment variables (relevant)
+- AI: `OPENAI_API_KEY`, `OPENAI_MODEL`, `NVIDIA_NIM_BASE_URL`, `NVIDIA_NIM_API_KEY`, `NVIDIA_NIM_MODEL`
+- Nvidia pipeline/runtime: `RENDER_ENDPOINT`, `CONTENT_AGENTS_ENDPOINT`, `CONTENT_AGENTS_API_KEY`, `SIMREADY_PYTHON_RUNTIME`
+- Security: `AURELEAN_REQUIRE_AUTH`, `AURELEAN_API_TOKEN`
+- Persistence: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+- Environment examples: `.env.example`
 
-### Safety checks performed against production (GET/HEAD only)
+### Test/build setup
+- `npm run lint`
+- `npm run build`
+- `npx tsc --noEmit`
+- `npm run test:smoke`
 
-- `HEAD https://aurelean-main.vercel.app/` → `200`
-- `HEAD https://aurelean-main.vercel.app/trade` → `200`
-- `GET https://aurelean-main.vercel.app/workspace` → `200`
-- `GET https://aurelean-main.vercel.app/api/health` → `200`
-- `GET https://aurelean-main.vercel.app/api/bootstrap` → `200`
-- `GET https://aurelean-main.vercel.app/api/integrations/nvidia-simready` → `200`
+## 3) Commands run
 
-No production POST/mutating endpoints were invoked in this verification pass.
+### Commands executed
+- `npm run lint` — **Pass**
+- `npm run build` — **Pass**
+- `npx tsc --noEmit` — **Pass**
+- `npm run test:smoke` (with local dev server on `127.0.0.1:3000`) — **Pass**
+- `Invoke-WebRequest` smoke checks on production (`https://aurelean-main.vercel.app`) for key pages/APIs — **Pass**
 
-## 6) Risks and open items
+### Notes
+- Smoke suite now validates public pages, API GETs, core POST flows, and explicit negative cases with deterministic fallbacks when mutable state is unsuitable for award success.
+- Build and lint passed without warnings.
 
-- Current rate limiting is in-memory and process-local; production hardening still needs distributed controls.
-- Mutation endpoints remain environment-gated and demo-oriented; auth/ownership model is still an external scope item for customer data mode.
-- Live endpoint behavior and richer interaction coverage for accessibility remain appropriate follow-up tasks.
+## 4) Design audit findings
 
-## 7) Manual QA checklist (suggested next pass)
+### Critical
+- No critical design regressions observed after fixes.
 
-1. In `/workspace`, exercise multiple rapid clicks on award actions and confirm only one mutation is accepted.
-2. On `/trade`, verify save toggles are disabled during in-flight and restore correctly.
-3. On supplier page `/trade/[id]`, attempt sample/RFQ submits with/without required fields and confirm validation and network error text.
-4. In `/request-access`, run validation errors through each step and complete/failed submit paths.
-5. Run a final smoke probe for `/api/rfqs`, `/api/suppliers/{id}/sample`, `/api/suppliers/{id}/save` for 422/403 happy/sad paths if operational policy allows.
+### High
+1. **Inconsistent demo framing in non-obvious sections**
+- Evidence: Some sections required clearer non-production wording before and remained ambiguous.
+- Impact: Enterprise users could misinterpret demo state.
+- Fix: Added explicit demo framing in workspace and kept request-access as primary intake path.
+- Files/areas: `src/components/WorkspaceClient.tsx`, `src/app/workspace/page.tsx`, `src/components/RequestAccessClient.tsx`
+- Implemented in this task: **Yes**
 
+2. **Missing descriptive label semantics in major forms/controls**
+- Evidence: Search and memory query controls previously lacked explicit labels.
+- Impact: Accessibility and keyboard users could miss control purpose.
+- Fix: Added label associations and screen-reader helper class; kept action buttons typed for clarity.
+- Files/areas: `src/components/TradeClient.tsx`, `src/components/WorkspaceClient.tsx`, `src/components/RequestAccessClient.tsx`, `src/app/globals.css`
+- Implemented in this task: **Yes**
+
+### Medium
+1. **Seed tier labels used mixed symbol format**
+- Evidence: Supplier cards rendered euro-symbol-like tiers.
+- Impact: Reduced enterprise trust and consistency.
+- Fix: Normalized tiers to deterministic capability bands (`A+`, `A`, `A-`, `B+`).
+- Files/areas: `src/lib/seed.ts`
+- Implemented in this task: **Yes**
+
+2. **Request-access input gate was incomplete on names**
+- Evidence: Name validation and required checks were not enforced end-to-end.
+- Impact: Intake quality and CRM signal quality were weaker than needed.
+- Fix: Added first/last required logic and pattern checks in UI + API.
+- Files/areas: `src/components/RequestAccessClient.tsx`, `src/app/api/request-access/route.ts`
+- Implemented in this task: **Yes**
+
+### Low
+1. **Smoke logic depended on hard-coded RFQ IDs**
+- Evidence: Older static RFQ id assumptions caused brittle execution checks.
+- Impact: Non-deterministic failures in long-running stateful environments.
+- Fix: Reworked smoke harness to discover runnable RFQs dynamically and skip safely when unavailable.
+- Files/areas: `scripts/smoke-test.mjs`
+- Implemented in this task: **Yes**
+
+## 5) Backend/security audit findings
+
+### Critical
+1. **Mutation endpoints may be reachable without guard when auth disabled**
+- Evidence: `ensureMutationAllowed` enforces auth only when `AURELEAN_REQUIRE_AUTH === "true"`.
+- Impact: Production misuse risk if not explicitly enabled.
+- Recommended fix: Keep demo mode explicit, document and enforce `AURELEAN_REQUIRE_AUTH=true` for non-demo environments.
+- Files/areas: `src/lib/api.ts`, `src/app/api/*`
+- Implemented in this task: **Partially** (guard + documented behavior retained)
+
+### High
+1. **Weak/malformed path IDs accepted as route input**
+- Evidence: Supplier save/sample routes accepted unsanitized path IDs.
+- Impact: Unclear error paths and unnecessary mutation attempts.
+- Fix: Added `isSafeResourceId` checks and explicit 422 handling.
+- Files/areas: `src/app/api/suppliers/[id]/save/route.ts`, `src/app/api/suppliers/[id]/sample/route.ts`
+- Implemented in this task: **Yes**
+
+2. **Request bodies not bounded by payload length after parse**
+- Evidence: Original parser depended on content-length + generic JSON parse behavior.
+- Impact: Potentially oversized/invalid payload handling edge cases.
+- Fix: Added byte-length enforcement before parse in shared helper.
+- Files/areas: `src/lib/api.ts`
+- Implemented in this task: **Yes**
+
+### Medium
+1. **Award endpoint required tighter RFQ/bid invariant checks**
+- Evidence: Prior flow could evaluate bid presence without strict ownership checks.
+- Impact: Potential inconsistent state if invalid bid/award combinations were submitted.
+- Fix: Added RFQ existence, status, bid existence and ownership checks; separated missing/invalid bid ID handling.
+- Files/areas: `src/app/api/rfqs/[id]/award/route.ts`
+- Implemented in this task: **Yes**
+
+2. **Manual validation duplication across API routes**
+- Evidence: No shared schema layer in repo.
+- Impact: Validation quality drift risk over time.
+- Fix: Not fully addressed in this pass; route-level controls remain explicit but should be migrated to shared schema validation.
+- Files/areas: `src/app/api/*`
+- Implemented in this task: **No**
+
+### Low
+1. **Local persistence has no distributed lock safety**
+- Evidence: `readFile/writeFile` JSON flow without lock or transaction semantics.
+- Impact: Concurrency conflict risk under load.
+- Fix: Flagged for Supabase-first or transactional migration.
+- Files/areas: `src/lib/store.ts`
+- Implemented in this task: **No**
+
+## 6) Changes implemented
+
+### Summary of files changed
+- `AUDIT.md` (updated to completed architecture + findings + checks + risk matrix)
+- `scripts/smoke-test.mjs`
+- `src/app/api/request-access/route.ts`
+- `src/app/api/rfqs/[id]/award/route.ts`
+- `src/app/api/suppliers/[id]/sample/route.ts`
+- `src/app/api/suppliers/[id]/save/route.ts`
+- `src/app/globals.css`
+- `src/components/RequestAccessClient.tsx`
+- `src/components/TradeClient.tsx`
+- `src/components/WorkspaceClient.tsx`
+- `src/lib/api.ts`
+- `src/lib/seed.ts`
+- `src/app/developer/page.tsx` (legacy `/developer` redirect)
+
+### Why these changes were selected
+- Prioritized safe, high-impact fixes for validation, demo framing, route coverage, and accessibility
+- Kept changes scoped to existing architecture and existing route model
+- Ensured end-to-end smoke stability without introducing new external dependencies
+
+### What was completed
+- API input hardening for RFQ, supplier save/sample, request-access, and read/write boundaries.
+- More deterministic award handling and explicit approval behavior.
+- Better route coverage across footer/legacy paths (`/developer`, `/agent`).
+- Better UI semantics on key forms and search/ask controls.
+- Smoke suite expanded to production-like scope and robust success/fail assertions.
+
+## 7) Remaining risks and follow-up tasks
+
+### Must fix before client intake
+- Enable and verify `AURELEAN_REQUIRE_AUTH=true` in non-demo production and rotate/guard `AURELEAN_API_TOKEN`.
+- Add structured request schema layer (zod) for body validation.
+- Add structured mutation logging for denied/failed operations.
+- Add write-safety or transaction-backed persistence for concurrent environments.
+
+### Remaining optional hardening
+- Add automated Playwright checks for in-browser keyboard flows in `/trade`, `/workspace`, `/request-access`.
+- Add dedicated API integration tests for award happy-path with guaranteed bid fixtures.
+- Add explicit CSP/headers, rate-limit observability, and abuse metrics.
+
+### External blockers
+- Confirmed test/incident environment for enterprise audit controls.
+- Vercel deployment policy and security review for API abuse controls.
+- Supabase RLS and migration sign-off for production data mode.
+
+## 8) Manual QA checklist
+
+### Page and navigation checks
+- [ ] `/` first viewport clarity, CTA hierarchy, mobile readability
+- [ ] `/platform`, `/trade`, `/intelligence`, `/ai-agent`, `/workspace` CTA and section continuity
+- [ ] Footer links for all `/company/*`, `/solutions/*`, `/resources/*`, `/integrations/*`
+- [ ] Redirect behavior for `/developer` → `/developers`, `/agent` → `/ai-agent`
+
+### Functional checks
+- [ ] `POST /api/request-access` positive + required-field validation
+- [ ] `POST /api/rfqs` on verified supplier; required field validation
+- [ ] `POST /api/suppliers/{id}/save` for valid + invalid IDs
+- [ ] `POST /api/suppliers/{id}/sample` for verified and unverified/invalid suppliers
+- [ ] `POST /api/rfqs/{id}/award` with missing approval, non-owned bid, and valid approval
+- [ ] `POST /api/agents/run` action gating and fallback behavior
+- [ ] `POST /api/memory/query` with valid and empty queries
+- [ ] `/api/integrations/nvidia-simready` and `/integrations/nvidia-simready` content consistency
+
+### UX/access checks
+- [ ] Keyboard tab order and focus visibility for primary controls
+- [ ] Input labels and status message announcements in Trade, Workspace, Supplier, Request-access
+- [ ] Error messages remain understandable and non-blank for validation failures
+- [ ] Mobile viewport (<= 768px) keeps spacing and CTAs usable

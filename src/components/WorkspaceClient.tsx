@@ -140,9 +140,14 @@ export function WorkspaceClient({ initialState }: { initialState: AureleanState 
         </div>
         <div className="topbar">
           <h1 className="h-md" style={{ minWidth: 210 }}>{titles[view]}</h1>
-          <label className="input" style={{ maxWidth: 360, display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
+          <label
+            className="input"
+            htmlFor="workspace-command"
+            style={{ maxWidth: 360, display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}
+          >
             <Search size={16} />
             <input
+              id="workspace-command"
               style={{ border: 0, background: "transparent", outline: 0, width: "100%" }}
               placeholder="Search or ask AURELEAN..."
               value={command}
@@ -637,11 +642,20 @@ function MemoryView({ memories, refresh }: { memories: MemoryEntry[]; refresh: (
 
   return (
     <div className="view-pad">
-      <div className="memory-feed">
-        <div className="eyebrow">Operational memory</div>
-        <h2 className="h-lg" style={{ marginTop: 10 }}>Everything your operation remembers.</h2>
-        <div className="tool-row" style={{ marginTop: 22 }}>
-          <input className="input" value={question} onChange={(e) => setQuestion(e.target.value)} />
+        <div className="memory-feed">
+          <div className="eyebrow">Operational memory</div>
+          <h2 className="h-lg" style={{ marginTop: 10 }}>Everything your operation remembers.</h2>
+          <div className="tool-row" style={{ marginTop: 22 }}>
+          <label htmlFor="memory-question" style={{ width: "100%" }}>
+            <span className="sr-only">Ask a question of operational memory</span>
+            <input
+              id="memory-question"
+              className="input"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              aria-label="Ask a question of operational memory"
+            />
+          </label>
           <button type="button" className="btn btn-gold" onClick={ask}>{busy ? "Asking..." : "Ask"}</button>
         </div>
         {answer && <div className="notice" style={{ marginTop: 16 }}><Sparkles size={18} /> {answer}</div>}

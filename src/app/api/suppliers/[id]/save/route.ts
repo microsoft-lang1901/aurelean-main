@@ -1,4 +1,4 @@
-import { ensureMutationAllowed, fail, isRateLimited, ok } from "@/lib/api";
+import { ensureMutationAllowed, fail, isRateLimited, isSafeResourceId, ok } from "@/lib/api";
 import { toggleSupplierSaved } from "@/lib/store";
 
 export async function POST(
@@ -14,7 +14,12 @@ export async function POST(
     }
 
     const { id } = await context.params;
-    const supplier = await toggleSupplierSaved(id);
+    const supplierId = isSafeResourceId(id);
+    if (!supplierId) {
+      return fail("Supplier id is invalid.", 422, "invalid_supplier_id");
+    }
+
+    const supplier = await toggleSupplierSaved(supplierId);
     if (!supplier) return fail("Supplier not found.", 404, "supplier_not_found");
     return Response.json(ok(supplier));
   } catch (error) {

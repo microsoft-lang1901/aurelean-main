@@ -20,7 +20,11 @@ export async function readJson<T>(request: Request, maxBytes = defaultMaxJsonByt
   }
 
   try {
-    return (await request.json()) as T;
+    const body = await request.text();
+    if (Buffer.byteLength(body, "utf8") > maxBytes) {
+      throw new Error("Request body is too large.");
+    }
+    return JSON.parse(body) as T;
   } catch {
     throw new Error("Invalid JSON payload.");
   }
@@ -29,6 +33,12 @@ export async function readJson<T>(request: Request, maxBytes = defaultMaxJsonByt
 export function cleanString(value: unknown, maxLength: number) {
   if (typeof value !== "string") return "";
   return value.trim().slice(0, maxLength);
+}
+
+export function isSafeResourceId(value: string, maxLength = 80) {
+  const normalized = cleanString(value, maxLength);
+  if (!normalized) return "";
+  return /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(normalized) ? normalized : "";
 }
 
 export function cleanStringArray(value: unknown, maxItems = 8, maxLength = 80) {

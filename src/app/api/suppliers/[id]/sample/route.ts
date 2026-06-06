@@ -1,4 +1,4 @@
-import { cleanString, ensureMutationAllowed, fail, isRateLimited, ok, readJson } from "@/lib/api";
+import { cleanString, ensureMutationAllowed, fail, isRateLimited, isSafeResourceId, ok, readJson } from "@/lib/api";
 import { createSampleRequest, getSupplier } from "@/lib/store";
 
 type Payload = {
@@ -21,7 +21,12 @@ export async function POST(
     }
 
     const { id } = await context.params;
-    const supplier = await getSupplier(id);
+    const supplierId = isSafeResourceId(id);
+    if (!supplierId) {
+      return fail("Supplier id is invalid.", 422, "invalid_supplier_id");
+    }
+
+    const supplier = await getSupplier(supplierId);
     if (!supplier) return fail("Supplier not found.", 404, "supplier_not_found");
     if (!supplier.verified) return fail("Samples can only be requested from verified suppliers.", 403, "supplier_not_verified");
     const body = await readJson<Payload>(request);

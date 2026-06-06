@@ -53,7 +53,7 @@ export function TradeClient({ initialSuppliers }: { initialSuppliers: Supplier[]
 
   return (
     <>
-      <section className="dk section">
+    <section className="dk section">
         <div className="wrap">
           <div className="eyebrow on-dark">AURELEAN Trade</div>
           <h1 className="h-xl" style={{ marginTop: 16, maxWidth: "13ch" }}>
@@ -73,9 +73,11 @@ export function TradeClient({ initialSuppliers }: { initialSuppliers: Supplier[]
       </section>
       <div className="searchbar">
         <div className="wrap">
-          <label className="input search-input" style={{ display: "flex", gap: 10 }}>
+          <label className="input search-input" htmlFor="trade-search" style={{ display: "flex", gap: 10 }}>
             <Search size={18} />
             <input
+              id="trade-search"
+              aria-label="Search supplier marketplace"
               style={{ border: 0, background: "transparent", outline: 0, width: "100%" }}
               value={query}
               onChange={(event) => setQuery(event.target.value)}

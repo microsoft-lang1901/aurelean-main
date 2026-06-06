@@ -45,8 +45,12 @@ export function RequestAccessClient() {
   function validateStep(nextStep?: number) {
     setMessage("");
     if (step === 0) {
-      if (!form.email.trim() || !form.company.trim()) {
-        setMessage("Work email and company are required.");
+      if (!form.firstName.trim() || !form.lastName.trim() || !form.email.trim() || !form.company.trim()) {
+        setMessage("First name, last name, work email, and company are required.");
+        return false;
+      }
+      if (!/^[A-Za-z' -]+$/.test(form.firstName.trim()) || !/^[A-Za-z' -]+$/.test(form.lastName.trim())) {
+        setMessage("Use letters only for names.");
         return false;
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
@@ -190,7 +194,15 @@ function Field({
   return (
     <div className="field">
       <label htmlFor={id}>{label}</label>
-      <input id={id} className="input" type={type} value={value} onChange={(event) => onChange(event.target.value)} />
+      <input
+        id={id}
+        className="input"
+        type={type}
+        required={label === "First name" || label === "Last name" || label === "Work email" || label === "Company"}
+        aria-required={label === "First name" || label === "Last name" || label === "Work email" || label === "Company"}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
     </div>
   );
 }
