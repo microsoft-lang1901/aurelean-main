@@ -66,32 +66,32 @@ export function Footer() {
               ["Overview", "/platform"],
               ["Trade", "/trade"],
               ["Intelligence", "/intelligence"],
-              ["AI Agent", "/workspace"]
+              ["AI Agent", "/ai-agent"]
             ]}
           />
           <FooterList
             title="Solutions"
             items={[
-              ["Luxury Textiles", "/solutions#textiles"],
-              ["Furnishings", "/solutions#furnishings"],
-              ["Materials", "/solutions#materials"],
-              ["Manufacturing", "/solutions#manufacturing"]
+              ["Luxury Textiles", "/solutions/luxury-textiles"],
+              ["Furnishings", "/solutions/furnishings"],
+              ["Materials", "/solutions/materials"],
+              ["Manufacturing", "/solutions/manufacturing"]
             ]}
           />
           <FooterList
             title="Company"
             items={[
-              ["About", "/company#about"],
-              ["Careers", "/company#careers"],
-              ["Newsroom", "/company#newsroom"],
-              ["Contact", "/company#contact"]
+              ["About", "/company/about"],
+              ["Careers", "/company/careers"],
+              ["Newsroom", "/company/newsroom"],
+              ["Contact", "/company/contact"]
             ]}
           />
           <FooterList
             title="Resources"
             items={[
               ["Developers", "/developers"],
-              ["Documentation", "/resources#documentation"],
+              ["Documentation", "/resources/documentation"],
               ["Security", "/security"],
               ["Privacy", "/privacy"]
             ]}
