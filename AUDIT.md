@@ -111,7 +111,7 @@ None.
    - Added `/integrations/nvidia` coverage and assertion for NVIDIA intro route compatibility.
 
 3) `src/app/integrations/nvidia/page.tsx`
-   - Added compatibility redirect from `/integrations/nvidia` to `/integrations/nvidia-simready` for stable NVIDIA integration deep-links.
+   - Added a full NVIDIA introduction page at `/integrations/nvidia` with context for NIM/Omniverse pathways and links to `/integrations/nvidia-simready` and API references.
 
 4) `AUDIT.md`
    - Refreshed architecture, command outcomes, risk log, and deployment verification status.
@@ -152,6 +152,7 @@ None.
   - award requires approval intent
   - memory query and notifications
 - `/integrations/nvidia` redirects and renders to `/integrations/nvidia-simready`.
+- `/integrations/nvidia` renders an NVIDIA integration introduction with clear call-to-action into SimReady and developer docs.
 - Marketplace:
   - search/sort/filter
   - save supplier
