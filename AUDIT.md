@@ -147,7 +147,9 @@ Notes / blockers:
    - Added integration-hub coverage to assert the new NVIDIA integration introduction path is discoverable.
 
 15) `src/app/integrations/page.tsx`
-   - Added a dedicated NVIDIA integration overview card linking to `/integrations/nvidia` so the new introduction route is visible from the integrations hub.
+    - Added a dedicated NVIDIA integration overview card linking to `/integrations/nvidia` so the new introduction route is visible from the integrations hub.
+16) `src/app/security/page.tsx`
+   - Corrected security persistence claim language to avoid overstating client-side policy details and align statements to the actual server-mediated persistence model.
 
 ### Validation and deployment cycle
 - Re-ran: `npm run lint`, `npm run build`, `npm run test:smoke`.

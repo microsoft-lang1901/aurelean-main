@@ -12,7 +12,7 @@ const items = [
   "Human approval is required before bid awards are executed.",
   "RFQs and sample requests are limited to verified suppliers.",
   "Supplier, bid, and certification facts come from stored app state.",
-  "Supabase persistence is server-side and protected by RLS with no public table policies.",
+  "Supabase persistence is server-side and updated through server API routes only.",
   "OpenAI calls fall back to deterministic answers if credentials or network access are unavailable.",
   "NVIDIA NIM-compatible inference can be configured through server-side deployment variables.",
   "Public demo workspace actions are labelled as simulations until authenticated production access is configured."
