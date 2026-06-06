@@ -55,6 +55,13 @@ export default function DevelopersPage() {
             <Endpoint method="GET" path="/api/health" text="Check persistence and AI integration readiness" />
             <Endpoint method="GET" path="/api/integrations/nvidia-simready" text="Read CAD-to-SimReady pipeline status and rerun requirements" />
           </div>
+          <p style={{ marginTop: 16 }}>
+            Production hardening mode: when <code>AURELEAN_REQUIRE_AUTH=true</code>, mutation routes
+            (<code>/api/rfqs</code>, <code>/api/suppliers/&#123;id&#125;/save</code>, <code>/api/suppliers/&#123;id&#125;/sample</code>,
+            <code>/api/rfqs/&#123;id&#125;/award</code>, <code>/api/agents/run</code>) require <code>x-aurelean-api-token</code> or
+            <code>Authorization: Bearer &lt;token&gt;</code> using
+            <code>AURELEAN_API_TOKEN</code> for execution.
+          </p>
         </div>
       </section>
       <section className="section" style={{ background: "var(--paper-1)" }}>

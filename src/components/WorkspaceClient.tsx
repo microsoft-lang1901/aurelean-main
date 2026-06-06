@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { AlertTriangle, BarChart3, Bell, Box, Brain, CheckCircle2, Grid2X2, Search, Send, Shield, Sparkles, TrendingUp, Users } from "lucide-react";
@@ -235,7 +235,7 @@ function Overview({
         <Kpi label="Active RFQs" value={String(active)} note="+2 this week" />
         <Kpi label="Awaiting response" value={String(responded)} note="2 responded today" />
         <Kpi label="Suppliers" value={String(state.suppliers.length)} note="Across 6 categories" />
-        <Kpi label="Spend YTD" value="€2.4M" note="-8% vs budget" />
+        <Kpi label="Spend YTD" value="€1.4M" note="-8% vs budget" />
       </div>
       <div className="grid-2" style={{ marginTop: 18 }}>
         <div className="panel" style={{ padding: 20 }}>
@@ -602,3 +602,4 @@ function MemoryView({ memories, refresh }: { memories: MemoryEntry[]; refresh: (
     </div>
   );
 }
+

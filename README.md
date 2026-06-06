@@ -40,6 +40,8 @@ Copy `.env.example` to `.env.local` and set values as needed.
 - `NEXT_PUBLIC_SUPABASE_URL`: Supabase project URL.
 - `SUPABASE_SERVICE_ROLE_KEY`: server-only key used to persist app state.
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: reserved for auth/client features.
+- `AURELEAN_REQUIRE_AUTH`: set to `true` to require token-gated API mutations.
+- `AURELEAN_API_TOKEN`: API token used only when `AURELEAN_REQUIRE_AUTH=true`.
 
 If Supabase env vars are missing, local development writes to `data/aurelean-db.json`.
 
@@ -108,6 +110,7 @@ The project is designed for Vercel. Required production env vars:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `AURELEAN_REQUIRE_AUTH` and `AURELEAN_API_TOKEN` (optional production hardening; enable if you need write APIs behind a token)
 
 Optional production integration env vars:
 
@@ -117,5 +120,9 @@ Optional production integration env vars:
 - `RENDER_ENDPOINT`
 - `CONTENT_AGENTS_ENDPOINT`
 - `CONTENT_AGENTS_API_KEY`
+
+When `AURELEAN_REQUIRE_AUTH=true`, mutate routes (`/api/rfqs`, `/api/suppliers/{id}/save`, `/api/suppliers/{id}/sample`, `/api/rfqs/{id}/award`, `/api/agents/run`) require a token in either:
+- `x-aurelean-api-token` header
+- `Authorization: Bearer <AURELEAN_API_TOKEN>` header
 
 Push to GitHub, import into Vercel, add env vars, and deploy.

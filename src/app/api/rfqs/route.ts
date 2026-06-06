@@ -1,4 +1,4 @@
-import { cleanString, fail, ok, readJson } from "@/lib/api";
+import { cleanString, ensureMutationAllowed, fail, ok, readJson } from "@/lib/api";
 import { createRfq, listBids, listRfqs, listSuppliers } from "@/lib/store";
 
 type Payload = {
@@ -16,6 +16,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const authFailure = ensureMutationAllowed(request, "RFQ creation");
+    if (authFailure) return authFailure;
+
     const body = await readJson<Payload>(request);
     const supplierId = cleanString(body.supplierId, 80);
     const material = cleanString(body.material, 160);

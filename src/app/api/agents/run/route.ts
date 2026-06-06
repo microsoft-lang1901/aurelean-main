@@ -1,4 +1,4 @@
-import { cleanString, fail, isRateLimited, ok, readJson } from "@/lib/api";
+import { cleanString, ensureMutationAllowed, fail, isRateLimited, ok, readJson } from "@/lib/api";
 import { runAureleanAgent } from "@/lib/aurelean-agent";
 import type { AgentAction } from "@/types/aurelean";
 
@@ -26,6 +26,9 @@ type Payload = {
 
 export async function POST(request: Request) {
   try {
+    const authFailure = ensureMutationAllowed(request, "agent workflow");
+    if (authFailure) return authFailure;
+
     if (isRateLimited(request, "agent-run", 20, 60_000)) {
       return fail("Too many agent requests. Please wait and try again.", 429, "rate_limited");
     }

@@ -2,6 +2,8 @@ import type { ApiResult } from "@/types/aurelean";
 
 const defaultMaxJsonBytes = 32_000;
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+const requireAuthForMutations = process.env.AURELEAN_REQUIRE_AUTH === "true";
+const apiMutationToken = process.env.AURELEAN_API_TOKEN;
 
 export function ok<T>(data: T): ApiResult<T> {
   return { ok: true, data };
@@ -57,6 +59,26 @@ export function isRateLimited(request: Request, bucket: string, limit = 20, wind
   return current.count > limit;
 }
 
+export function ensureMutationAllowed(request: Request, operation = "mutation") {
+  if (!requireAuthForMutations) return null;
+  if (!apiMutationToken) {
+    return fail("Mutation guard is enabled but AURELEAN_API_TOKEN is not configured.", 500, "auth_token_missing");
+  }
+
+  const headerToken = request.headers.get("x-aurelean-api-token");
+  const authorization = request.headers.get("authorization") || "";
+  const bearerToken = authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : "";
+  const token = headerToken || bearerToken;
+
+  if (!token) {
+    return fail(`Missing API token for ${operation}.`, 401, "missing_api_token");
+  }
+  if (token !== apiMutationToken) {
+    return fail("Invalid API token.", 403, "invalid_api_token");
+  }
+  return null;
+}
+
 export function safePublicState() {
   return {
     mode: process.env.VERCEL && !process.env.SUPABASE_SERVICE_ROLE_KEY ? "ephemeral-demo" : "persistent",
@@ -64,6 +86,7 @@ export function safePublicState() {
     openAIConfigured: Boolean(process.env.OPENAI_API_KEY),
     nvidiaNimConfigured: Boolean(process.env.NVIDIA_NIM_BASE_URL && process.env.NVIDIA_NIM_API_KEY),
     renderConfigured: Boolean(process.env.RENDER_ENDPOINT),
-    contentAgentsConfigured: Boolean(process.env.CONTENT_AGENTS_ENDPOINT && process.env.CONTENT_AGENTS_API_KEY)
+    contentAgentsConfigured: Boolean(process.env.CONTENT_AGENTS_ENDPOINT && process.env.CONTENT_AGENTS_API_KEY),
+    mutationAuthRequired: requireAuthForMutations
   };
 }

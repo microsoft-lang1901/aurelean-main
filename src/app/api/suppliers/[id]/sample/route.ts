@@ -1,4 +1,4 @@
-import { cleanString, fail, ok, readJson } from "@/lib/api";
+import { cleanString, ensureMutationAllowed, fail, ok, readJson } from "@/lib/api";
 import { createSampleRequest, getSupplier } from "@/lib/store";
 
 type Payload = {
@@ -13,6 +13,9 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authFailure = ensureMutationAllowed(request, "sample request");
+    if (authFailure) return authFailure;
+
     const { id } = await context.params;
     const supplier = await getSupplier(id);
     if (!supplier) return fail("Supplier not found.", 404, "supplier_not_found");

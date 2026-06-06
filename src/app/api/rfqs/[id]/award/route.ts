@@ -1,4 +1,4 @@
-import { cleanString, fail, ok, readJson } from "@/lib/api";
+import { cleanString, ensureMutationAllowed, fail, ok, readJson } from "@/lib/api";
 import { awardBid } from "@/lib/store";
 
 type Payload = {
@@ -11,6 +11,9 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authFailure = ensureMutationAllowed(request, "bid award");
+    if (authFailure) return authFailure;
+
     const { id } = await context.params;
     const body = await readJson<Payload>(request);
     const bidId = cleanString(body.bidId, 80);

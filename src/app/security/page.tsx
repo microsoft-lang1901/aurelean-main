@@ -56,7 +56,7 @@ export default function SecurityPage() {
       </section>
       <section className="section">
         <div className="wrap grid-3">
-          <Card icon={<LockKeyhole />} title="Access model" text="The current workspace is a public demo. Production client workspaces require authenticated users, organization ownership, and role checks before real procurement data is connected." />
+          <Card icon={<LockKeyhole />} title="Access model" text="The current workspace is a public demo. In production mode, mutation endpoints can be switched to token-gated access using `AURELEAN_REQUIRE_AUTH` and `AURELEAN_API_TOKEN`." />
           <Card icon={<FileCheck2 />} title="Vendor review" text="Client intake should confirm data retention, subprocessors, incident contact, and compliance requirements before production onboarding." />
           <Card icon={<ShieldCheck />} title="Data boundary" text="Service-role Supabase credentials are server-only. No service-role key is exposed through public environment variables." />
         </div>

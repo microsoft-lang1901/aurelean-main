@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { Heart, Search } from "lucide-react";
@@ -143,3 +143,5 @@ function swatch(index: number) {
   const color = colors[index % colors.length];
   return `linear-gradient(145deg, ${color}, #18140f)`;
 }
+
+

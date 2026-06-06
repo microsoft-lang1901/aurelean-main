@@ -1,4 +1,4 @@
-const base = process.env.SMOKE_BASE_URL ?? "http://127.0.0.1:3000";
+﻿const base = process.env.SMOKE_BASE_URL ?? "http://127.0.0.1:3000";
 
 const checks = [
   ["GET", "/", null],
@@ -151,3 +151,4 @@ for (const [method, path, body, expectedStatus] of negativeChecks) {
   }
   console.log(`OK ${method} ${path} rejected invalid input`);
 }
+
