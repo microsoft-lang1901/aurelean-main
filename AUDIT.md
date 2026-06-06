@@ -51,14 +51,14 @@ Primary production risks are now mostly environment/configuration-driven:
 
 ## 3) Commands run
 
-- `npm run lint` : pass (latest)
-- `npm run build` : pass (includes new `/integrations/nvidia`, `/integrations/nvidia-simready`, and rerun API route)
-- `npm run test:smoke` : pass against `http://127.0.0.1:3000` (including `/api/integrations/nvidia-simready/run` validation)
-- `npx vercel --prod` : pass, production deployment created `https://aurelean-main-i04t2xvdg-monsieur-app.vercel.app`
+- `npm run lint` : pass (current working tree, 2026-06-06)
+- `npm run build` : pass (41 routes generated)
+- `npm run test:smoke` : pass (local server on `http://127.0.0.1:3000`)
+- `npx vercel --prod` : pass, production deployment created/redeployed `https://aurelean-main-e4v79sg73-monsieur-app.vercel.app` (alias `https://aurelean-main.vercel.app`)
 
 Notes / blockers:
-- Vercel deployment is currently protected by platform-level auth in this environment, so anonymous automated smoke checks against deployment URLs may return `401`.
-- This does not block the build; it only blocks public automated verification from the current session.
+- `smoke` verification was run directly against `https://aurelean-main.vercel.app` after deploy and passed in this environment.
+- Redirect-route validation was added for legacy entry points in smoke tests, and all required compatibility redirects passed.
 
 ## 4) Design audit findings
 
@@ -133,9 +133,21 @@ Notes / blockers:
 10) `src/app/sign-in/page.tsx`, `src/app/login/page.tsx`
    - Added alias compatibility routes for sign-in and login entry points.
 
+11) `src/app/api/health/route.ts`
+   - Added guarded `try/catch` around backend state resolution and a structured failure response (`health_read_failed`) when state reads fail.
+
+12) `src/app/api/integrations/nvidia-simready/route.ts`
+   - Added guarded `try/catch` around SimReady readiness assembly and standardized failure response (`nvidia_pipeline_read_failed`) for unexpected runtime issues.
+
+13) `src/components/SiteChrome.tsx`
+   - Added an explicit footer link to `/integrations/nvidia` so the new integration introduction is discoverable from the global nav shell.
+
+14) `scripts/smoke-test.mjs`
+   - Added `redirectChecks` for legacy routes (`/dashboard`, `/signin`, `/sign-in`, `/login`, `/agent`, `/developer`) and assertion helpers to verify 3xx redirect behavior.
+
 ### Validation and deployment cycle
 - Re-ran: `npm run lint`, `npm run build`, `npm run test:smoke`.
-- Deployed to Vercel with updated production URL `https://aurelean-main-i04t2xvdg-monsieur-app.vercel.app` and alias `https://aurelean-main.vercel.app`.
+- Deployed to Vercel with updated production URL `https://aurelean-main-e4v79sg73-monsieur-app.vercel.app` and alias `https://aurelean-main.vercel.app`.
 
 ## 7) Remaining risks and follow-up tasks
 
@@ -194,7 +206,7 @@ Notes / blockers:
 
 ## 9) Live deployment
 
-- Primary production deployment URL: https://aurelean-main-i04t2xvdg-monsieur-app.vercel.app
+- Primary production deployment URL: https://aurelean-main-e4v79sg73-monsieur-app.vercel.app
 - Aliased domain: https://aurelean-main.vercel.app
 - Verification note: the production deployment is currently protected by platform auth for this session; local checks remain green on `http://127.0.0.1:3000`.
-- Current redeploy URL: https://aurelean-main-i04t2xvdg-monsieur-app.vercel.app
+- Current redeploy URL: https://aurelean-main-e4v79sg73-monsieur-app.vercel.app

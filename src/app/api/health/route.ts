@@ -1,10 +1,18 @@
-import { ok, safePublicState } from "@/lib/api";
+import { fail, ok, safePublicState } from "@/lib/api";
 
 export async function GET() {
-  return Response.json(
-    ok({
-      status: "ok",
-      ...safePublicState()
-    })
-  );
+  try {
+    return Response.json(
+      ok({
+        status: "ok",
+        ...safePublicState()
+      })
+    );
+  } catch (error) {
+    return fail(
+      error instanceof Error ? error.message : "Unable to read backend health state.",
+      500,
+      "health_read_failed"
+    );
+  }
 }

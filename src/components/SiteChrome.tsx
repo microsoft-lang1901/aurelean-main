@@ -109,6 +109,7 @@ export function Footer() {
             items={[
               ["Developers", "/developers"],
               ["Documentation", "/resources/documentation"],
+              ["NVIDIA Integration", "/integrations/nvidia"],
               ["NVIDIA SimReady", "/integrations/nvidia-simready"],
               ["Security", "/security"],
               ["Privacy", "/privacy"]

@@ -42,6 +42,15 @@ const pageChecks = [
   ["GET", "/api/rfqs"]
 ];
 
+const redirectChecks = [
+  ["/dashboard", "/workspace"],
+  ["/signin", "/workspace"],
+  ["/sign-in", "/workspace"],
+  ["/login", "/workspace"],
+  ["/agent", "/ai-agent"],
+  ["/developer", "/developers"]
+];
+
 const htmlAssertions = [
   ["/", "AI-native procurement infrastructure"],
   ["/platform", "One operating layer for sourcing"],
@@ -220,6 +229,24 @@ async function assertHtmlContains(path, expectedText) {
   console.log(`OK HTML ${path}`);
 }
 
+async function assertRedirect(path, expectedLocation) {
+  const response = await fetch(`${base}${path}`, {
+    method: "GET",
+    redirect: "manual"
+  });
+  if (response.status < 300 || response.status >= 400) {
+    throw new Error(`${path} expected redirect status, got ${response.status}`);
+  }
+  const location = response.headers.get("location");
+  if (!location) {
+    throw new Error(`${path} redirect response missing Location header.`);
+  }
+  if (!location.includes(expectedLocation)) {
+    throw new Error(`${path} redirected to ${location} instead of ${expectedLocation}.`);
+  }
+  console.log(`OK redirect ${path} -> ${expectedLocation}`);
+}
+
 let bootstrapData = null;
 
 for (const [method, path] of pageChecks) {
@@ -237,6 +264,10 @@ for (const [method, path] of pageChecks) {
     }
   }
   console.log(`OK ${method} ${path}`);
+}
+
+for (const [path, expectedLocation] of redirectChecks) {
+  await assertRedirect(path, expectedLocation);
 }
 
 for (const [path, expectedText] of htmlAssertions) {
