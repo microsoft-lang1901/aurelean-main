@@ -52,6 +52,9 @@ Primary production risks are environment-dependent and tied to deployment flags:
 - `npm run lint` : pass
 - `npm run build` : pass (both local and Vercel build)
 - `npm run test:smoke` : pass locally against `http://127.0.0.1:3000`
+- `npm run lint` : pass (latest post-update compatibility check)
+- `npm run build` : pass (after adding `/integrations/nvidia` route)
+- `npm run test:smoke` : pass (with NVIDIA integration redirect coverage)
 - `npx vercel --prod` : pass, production deployment created
 
 Notes / blockers:
@@ -105,8 +108,12 @@ None.
    - Made company about matcher robust for multiple copy variants.
    - Corrected expected status for missing RFQ award path (`404`).
    - Added and aligned malformed/negative validation checks for request-access, RFQ, agent, sample, and award routes.
+   - Added `/integrations/nvidia` coverage and assertion for NVIDIA intro route compatibility.
 
-3) `AUDIT.md`
+3) `src/app/integrations/nvidia/page.tsx`
+   - Added compatibility redirect from `/integrations/nvidia` to `/integrations/nvidia-simready` for stable NVIDIA integration deep-links.
+
+4) `AUDIT.md`
    - Refreshed architecture, command outcomes, risk log, and deployment verification status.
 
 ### Validation and deployment cycle
@@ -144,6 +151,7 @@ None.
   - RFQ detail/inbox flow
   - award requires approval intent
   - memory query and notifications
+- `/integrations/nvidia` redirects and renders to `/integrations/nvidia-simready`.
 - Marketplace:
   - search/sort/filter
   - save supplier
