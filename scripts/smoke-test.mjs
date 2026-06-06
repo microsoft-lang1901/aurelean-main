@@ -61,6 +61,7 @@ const htmlAssertions = [
   ["/ai-agent", "Agentic procurement with approval boundaries"],
   ["/developers", "Build on the AURELEAN protocol"],
   ["/resources/documentation", "AURELEAN product and API map"],
+  ["/integrations", "NVIDIA integration overview"],
   ["/integrations/nvidia-simready", "blocked-needs-rerun"],
   ["/integrations/nvidia", "SIMReady"],
   ["/company/about", ["Quiet infrastructure", "demanding procurement organizations", "AURELEAN is infrastructure"]],

@@ -39,6 +39,12 @@ export default function IntegrationsPage() {
       <section className="section">
         <div className="wrap grid-3">
           <IntegrationCard
+            icon={<ArrowRight />}
+            title="NVIDIA integration overview"
+            text="Context, operational flow, and references for CAD-to-SimReady plus inference configuration."
+            href="/integrations/nvidia"
+          />
+          <IntegrationCard
             icon={<Layers3 />}
             title="NVIDIA Omniverse CAD to SimReady"
             text="Pipeline status, validation stages, conformance repairs, and remaining rerun requirements."

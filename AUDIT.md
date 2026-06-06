@@ -54,7 +54,7 @@ Primary production risks are now mostly environment/configuration-driven:
 - `npm run lint` : pass (current working tree, 2026-06-06)
 - `npm run build` : pass (41 routes generated)
 - `npm run test:smoke` : pass (local server on `http://127.0.0.1:3000`)
-- `npx vercel --prod` : pass, production deployment created/redeployed `https://aurelean-main-e4v79sg73-monsieur-app.vercel.app` (alias `https://aurelean-main.vercel.app`)
+- `npx vercel --prod` : pass, production deployment created/redeployed `https://aurelean-main-fuifipr3d-monsieur-app.vercel.app` (alias `https://aurelean-main.vercel.app`)
 
 Notes / blockers:
 - `smoke` verification was run directly against `https://aurelean-main.vercel.app` after deploy and passed in this environment.
@@ -144,10 +144,14 @@ Notes / blockers:
 
 14) `scripts/smoke-test.mjs`
    - Added `redirectChecks` for legacy routes (`/dashboard`, `/signin`, `/sign-in`, `/login`, `/agent`, `/developer`) and assertion helpers to verify 3xx redirect behavior.
+   - Added integration-hub coverage to assert the new NVIDIA integration introduction path is discoverable.
+
+15) `src/app/integrations/page.tsx`
+   - Added a dedicated NVIDIA integration overview card linking to `/integrations/nvidia` so the new introduction route is visible from the integrations hub.
 
 ### Validation and deployment cycle
 - Re-ran: `npm run lint`, `npm run build`, `npm run test:smoke`.
-- Deployed to Vercel with updated production URL `https://aurelean-main-e4v79sg73-monsieur-app.vercel.app` and alias `https://aurelean-main.vercel.app`.
+- Deployed to Vercel with updated production URL `https://aurelean-main-fuifipr3d-monsieur-app.vercel.app` and alias `https://aurelean-main.vercel.app`.
 
 ## 7) Remaining risks and follow-up tasks
 
@@ -206,7 +210,7 @@ Notes / blockers:
 
 ## 9) Live deployment
 
-- Primary production deployment URL: https://aurelean-main-e4v79sg73-monsieur-app.vercel.app
+- Primary production deployment URL: https://aurelean-main-fuifipr3d-monsieur-app.vercel.app
 - Aliased domain: https://aurelean-main.vercel.app
-- Verification note: the production deployment is currently protected by platform auth for this session; local checks remain green on `http://127.0.0.1:3000`.
-- Current redeploy URL: https://aurelean-main-e4v79sg73-monsieur-app.vercel.app
+- Verification note: smoke checks were run directly against `https://aurelean-main.vercel.app` and passed in this environment.
+- Current redeploy URL: https://aurelean-main-fuifipr3d-monsieur-app.vercel.app
