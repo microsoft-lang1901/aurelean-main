@@ -178,10 +178,10 @@ export async function createRfq(
   }
 ) {
   return updateState<Rfq>((state) => {
-    const nextNumber =
-      Math.max(
-        ...state.rfqs.map((rfq) => Number(rfq.id.replace("RFQ-", ""))).filter(Boolean)
-      ) + 1;
+    const numericIds = state.rfqs
+      .map((rfq) => Number(rfq.id.replace("RFQ-", "")))
+      .filter((value) => Number.isFinite(value));
+    const nextNumber = (numericIds.length > 0 ? Math.max(...numericIds) : 2040) + 1;
     const rfq: Rfq = {
       id: `RFQ-${nextNumber}`,
       supplierId: input.supplierId,

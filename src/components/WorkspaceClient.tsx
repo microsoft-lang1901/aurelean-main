@@ -15,27 +15,58 @@ export function WorkspaceClient({ initialState }: { initialState: AureleanState 
   const [command, setCommand] = useState("Compare bids for RFQ-2041 and tell me the approval boundary.");
   const [agentResult, setAgentResult] = useState<AgentRunData | null>(null);
   const [agentBusy, setAgentBusy] = useState(false);
+  const [status, setStatus] = useState("");
+  const [operationBusy, setOperationBusy] = useState(false);
   const selectedRfq = state.rfqs.find((rfq) => rfq.id === selectedRfqId) ?? state.rfqs[0];
   const bids = state.bids.filter((bid) => bid.rfqId === selectedRfq?.id);
 
   async function refresh() {
-    const response = await fetch("/api/bootstrap");
-    const json = await response.json();
-    if (json.ok) setState(json.data);
+    try {
+      setStatus("Refreshing workspace...");
+      const response = await fetch("/api/bootstrap");
+      if (!response.ok) {
+        setStatus(`Could not refresh workspace (${response.status}).`);
+        return;
+      }
+      const json = await response.json();
+      if (json.ok) {
+        setState(json.data);
+        setStatus("Workspace refreshed.");
+      } else {
+        setStatus(json.error ?? "Could not refresh workspace.");
+      }
+    } catch {
+      setStatus("Could not reach workspace API.");
+    }
   }
 
   async function awardBid(rfq: Rfq, bid: Bid) {
-    const response = await fetch(`/api/rfqs/${rfq.id}/award`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bidId: bid.id, approvalIntent: "human-approved" })
-    });
-    const json = await response.json();
-    if (json.ok) await refresh();
+    if (operationBusy) return;
+    setOperationBusy(true);
+    setStatus(`Awarding ${bid.supplierName} for ${rfq.id}...`);
+    try {
+      const response = await fetch(`/api/rfqs/${rfq.id}/award`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bidId: bid.id, approvalIntent: "human-approved" })
+      });
+      const json = await response.json();
+      if (json.ok) {
+        await refresh();
+        setStatus("Bid awarded.");
+      } else {
+        setStatus(json.error ?? "Could not award bid.");
+      }
+    } catch {
+      setStatus("Award request failed.");
+    } finally {
+      setOperationBusy(false);
+    }
   }
 
   async function runAgent(action: AgentAction = "ask") {
     setAgentBusy(true);
+    setStatus("Running AURELEAN agent...");
     try {
       const response = await fetch("/api/agents/run", {
         method: "POST",
@@ -55,6 +86,7 @@ export function WorkspaceClient({ initialState }: { initialState: AureleanState 
       if (json.ok) {
         setAgentResult(json.data);
         await refresh();
+        setStatus("Agent action complete.");
       } else {
         setAgentResult({
           answer: json.error || "AURELEAN could not complete that command.",
@@ -63,6 +95,7 @@ export function WorkspaceClient({ initialState }: { initialState: AureleanState 
           approvalRequired: false,
           toolEvents: []
         });
+        setStatus(json.error ?? "Agent action failed.");
       }
     } catch {
       setAgentResult({
@@ -72,6 +105,7 @@ export function WorkspaceClient({ initialState }: { initialState: AureleanState 
         approvalRequired: false,
         toolEvents: []
       });
+      setStatus("Agent run failed.");
     } finally {
       setAgentBusy(false);
     }
@@ -118,20 +152,33 @@ export function WorkspaceClient({ initialState }: { initialState: AureleanState 
               }}
             />
           </label>
-          <button className="btn btn-ghost-lt" onClick={() => runAgent("ask")} disabled={agentBusy}>
+          <button type="button" className="btn btn-ghost-lt" onClick={() => runAgent("ask")} disabled={agentBusy}>
             <Send size={16} /> {agentBusy ? "Running" : "Ask"}
           </button>
-          <button className="btn btn-ghost-lt" aria-label="Notifications" onClick={() => setView("notifications")}><Bell size={16} /></button>
-          <button className="btn btn-gold" onClick={() => runAgent("create_rfq")}>New RFQ</button>
+          <button type="button" className="btn btn-ghost-lt" aria-label="Notifications" onClick={() => setView("notifications")}><Bell size={16} /></button>
+          <button type="button" className="btn btn-gold" onClick={() => runAgent("create_rfq")} disabled={agentBusy}>
+            New RFQ
+          </button>
         </div>
         <AgentConsole result={agentResult} busy={agentBusy} runAgent={runAgent} selectedRfq={selectedRfq} />
         {view === "overview" && <Overview state={state} setView={setView} setSelectedRfqId={setSelectedRfqId} />}
-        {view === "rfq" && selectedRfq && <RfqInbox rfqs={state.rfqs} selected={selectedRfq} bids={bids} select={setSelectedRfqId} award={awardBid} runAgent={runAgent} />}
+        {view === "rfq" && selectedRfq && (
+          <RfqInbox
+            rfqs={state.rfqs}
+            selected={selectedRfq}
+            bids={bids}
+            select={setSelectedRfqId}
+            award={awardBid}
+            runAgent={runAgent}
+            operationBusy={operationBusy}
+          />
+        )}
         {view === "suppliers" && <SupplierPipeline suppliers={state.suppliers} />}
         {view === "memory" && <MemoryView memories={state.memories} refresh={refresh} />}
         {view === "market" && <MarketSignals state={state} />}
         {view === "risk" && <RiskMonitor suppliers={state.suppliers} rfqs={state.rfqs} />}
         {view === "notifications" && <Notifications state={state} setView={setView} setSelectedRfqId={setSelectedRfqId} />}
+        {status && <div className="notice" style={{ margin: 18 }} role="status" aria-live="polite">{status}</div>}
       </main>
     </div>
   );
@@ -165,10 +212,10 @@ function AgentConsole({
         <strong>{selectedRfq ? `${selectedRfq.id} active context` : "Workspace context"}</strong>
       </div>
       <div className="agent-actions">
-        <button className="btn btn-ghost-lt" onClick={() => runAgent("search_suppliers")} disabled={busy}>Supplier search</button>
-        <button className="btn btn-ghost-lt" onClick={() => runAgent("compare_bids")} disabled={busy}>Compare bids</button>
-        <button className="btn btn-ghost-lt" onClick={() => runAgent("risk_review")} disabled={busy}>Risk review</button>
-        <button className="btn btn-ghost-lt" onClick={() => runAgent("recommend_award")} disabled={busy}>Prepare approval</button>
+        <button type="button" className="btn btn-ghost-lt" onClick={() => runAgent("search_suppliers")} disabled={busy}>Supplier search</button>
+        <button type="button" className="btn btn-ghost-lt" onClick={() => runAgent("compare_bids")} disabled={busy}>Compare bids</button>
+        <button type="button" className="btn btn-ghost-lt" onClick={() => runAgent("risk_review")} disabled={busy}>Risk review</button>
+        <button type="button" className="btn btn-ghost-lt" onClick={() => runAgent("recommend_award")} disabled={busy}>Prepare approval</button>
       </div>
       {result && (
         <div className={`agent-result ${result.approvalRequired ? "needs-approval" : ""}`}>
@@ -205,7 +252,7 @@ function NavButton({
   badge?: string;
 }) {
   return (
-    <button className={`nav-item ${current === view ? "on" : ""}`} onClick={() => setView(view)}>
+    <button type="button" className={`nav-item ${current === view ? "on" : ""}`} onClick={() => setView(view)}>
       {icon}
       {label}
       {badge && <span className="chip on" style={{ marginLeft: "auto", padding: "2px 7px" }}>{badge}</span>}
@@ -241,7 +288,7 @@ function Overview({
         <div className="panel" style={{ padding: 20 }}>
           <h3 className="h-md">Active RFQs</h3>
           {state.rfqs.slice(0, 4).map((rfq) => (
-            <button key={rfq.id} className="rfq-row" onClick={() => { setSelectedRfqId(rfq.id); setView("rfq"); }}>
+            <button type="button" key={rfq.id} className="rfq-row" onClick={() => { setSelectedRfqId(rfq.id); setView("rfq"); }}>
               <strong>{rfq.supplierName}</strong>
               <div style={{ color: "var(--on-lt-mut)" }}>{rfq.material} · {rfq.quantity}</div>
               <div className="kicker">{rfq.id} · {rfq.bidsReceived} bids · {rfq.updatedAtLabel}</div>
@@ -282,7 +329,8 @@ function RfqInbox({
   bids,
   select,
   award,
-  runAgent
+  runAgent,
+  operationBusy
 }: {
   rfqs: Rfq[];
   selected: Rfq;
@@ -290,12 +338,15 @@ function RfqInbox({
   select: (id: string) => void;
   award: (rfq: Rfq, bid: Bid) => void;
   runAgent: (action?: AgentAction) => Promise<void>;
+  operationBusy: boolean;
 }) {
+  const bestBid = bids.find((bid) => bid.bestValue) ?? bids[0];
+
   return (
     <div className="rfq-layout">
       <div className="rfq-list">
         {rfqs.map((rfq) => (
-          <button key={rfq.id} className={`rfq-row ${rfq.id === selected.id ? "on" : ""}`} onClick={() => select(rfq.id)}>
+          <button type="button" key={rfq.id} className={`rfq-row ${rfq.id === selected.id ? "on" : ""}`} onClick={() => select(rfq.id)}>
             <strong>{rfq.supplierName}</strong>
             <div>{rfq.material} · {rfq.quantity}</div>
             <div className="kicker">{rfq.id} · {rfq.bidsReceived} bids · {rfq.status}</div>
@@ -310,8 +361,12 @@ function RfqInbox({
             <p className="lead">{selected.material}</p>
           </div>
           <div className="tool-row" style={{ justifyContent: "flex-end" }}>
-            <button className="btn btn-ghost-lt" disabled={!bids[0]} onClick={() => runAgent("recommend_award")}>Prepare approval</button>
-            <button className="btn btn-gold" disabled={!bids[0]} onClick={() => bids[0] && award(selected, bids[0])}>Award best bid</button>
+            <button type="button" className="btn btn-ghost-lt" disabled={!bids[0] || operationBusy} onClick={() => runAgent("recommend_award")}>
+              Prepare approval
+            </button>
+            <button type="button" className="btn btn-gold" disabled={!bestBid || operationBusy} onClick={() => bestBid && award(selected, bestBid)}>
+              Award best bid
+            </button>
           </div>
         </div>
         <div className="grid-4" style={{ marginTop: 24 }}>
@@ -336,7 +391,11 @@ function RfqInbox({
                 <td>{bid.leadTimeWeeks} wk</td>
                 <td>{bid.moq}</td>
                 <td>{bid.reliability}</td>
-                <td><button className="btn btn-ghost-lt" onClick={() => award(selected, bid)}>{bid.awarded ? "Awarded" : "Award"}</button></td>
+                <td>
+                  <button type="button" className="btn btn-ghost-lt" disabled={operationBusy} onClick={() => award(selected, bid)}>
+                    {bid.awarded ? "Awarded" : "Award"}
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -512,6 +571,7 @@ function Notifications({
           <h3 className="h-md">Action queue</h3>
           {actionableRfqs.map((rfq) => (
             <button
+              type="button"
               key={rfq.id}
               className="rfq-row"
               onClick={() => {
@@ -582,7 +642,7 @@ function MemoryView({ memories, refresh }: { memories: MemoryEntry[]; refresh: (
         <h2 className="h-lg" style={{ marginTop: 10 }}>Everything your operation remembers.</h2>
         <div className="tool-row" style={{ marginTop: 22 }}>
           <input className="input" value={question} onChange={(e) => setQuestion(e.target.value)} />
-          <button className="btn btn-gold" onClick={ask}>{busy ? "Asking..." : "Ask"}</button>
+          <button type="button" className="btn btn-gold" onClick={ask}>{busy ? "Asking..." : "Ask"}</button>
         </div>
         {answer && <div className="notice" style={{ marginTop: 16 }}><Sparkles size={18} /> {answer}</div>}
         {Object.entries(groups).map(([group, entries]) => (

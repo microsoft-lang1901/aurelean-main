@@ -33,7 +33,9 @@ type AgentRunInput = {
   specifications?: string;
 };
 
-const model = process.env.OPENAI_MODEL || "gpt-5.4-mini";
+const model =
+  process.env.OPENAI_MODEL || process.env.NVIDIA_NIM_MODEL || "gpt-5.4-mini";
+const hasLLMProvider = Boolean(process.env.OPENAI_API_KEY || process.env.NVIDIA_NIM_API_KEY);
 
 const procurementInputGuardrail = {
   name: "procurement_human_approval_boundary",
@@ -720,7 +722,7 @@ export async function runAureleanAgent(input: AgentRunInput): Promise<AgentRunDa
   const context = JSON.stringify(serializeLeanState(state, input.prompt), null, 2);
   const prompt = `${input.prompt}\n\nAURELEAN current operating context:\n${context}`;
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (!hasLLMProvider) {
     const fallback = await deterministicAction(input);
     return {
       ...fallback,

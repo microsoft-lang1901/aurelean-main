@@ -12,6 +12,8 @@ export function TradeClient({ initialSuppliers }: { initialSuppliers: Supplier[]
   const [category, setCategory] = useState("all");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("featured");
+  const [status, setStatus] = useState("");
+  const [savingId, setSavingId] = useState("");
 
   const visible = useMemo(() => {
     const q = query.toLowerCase();
@@ -28,12 +30,25 @@ export function TradeClient({ initialSuppliers }: { initialSuppliers: Supplier[]
   }, [category, query, sort, suppliers]);
 
   async function toggleSave(id: string) {
-    const response = await fetch(`/api/suppliers/${id}/save`, { method: "POST" });
-    const json = await response.json();
-    if (!json.ok) return;
-    setSuppliers((current) =>
-      current.map((supplier) => (supplier.id === id ? json.data : supplier))
-    );
+    try {
+      if (savingId) return;
+      setSavingId(id);
+      setStatus("Saving supplier...");
+      const response = await fetch(`/api/suppliers/${id}/save`, { method: "POST" });
+      const json = await response.json();
+      if (!json.ok) {
+        setStatus(json.error ?? "Could not save supplier.");
+        return;
+      }
+      setSuppliers((current) =>
+        current.map((supplier) => (supplier.id === id ? json.data : supplier))
+      );
+      setStatus("Supplier updated.");
+    } catch {
+      setStatus("Network error. Please try again.");
+    } finally {
+      setSavingId("");
+    }
   }
 
   return (
@@ -70,6 +85,7 @@ export function TradeClient({ initialSuppliers }: { initialSuppliers: Supplier[]
           <div className="chip-row">
             {categories.map((item) => (
               <button
+                type="button"
                 className={`chip ${category === item ? "on" : ""}`}
                 key={item}
                 onClick={() => setCategory(item)}
@@ -90,11 +106,22 @@ export function TradeClient({ initialSuppliers }: { initialSuppliers: Supplier[]
           <div className="eyebrow">The index</div>
           <h2 className="h-md" style={{ marginTop: 10 }}>Verified mills & materials</h2>
           <p style={{ color: "var(--on-lt-mut)" }}>{visible.length} result{visible.length === 1 ? "" : "s"}</p>
+          {status && (
+            <p className="notice" style={{ marginTop: 16 }} role="status" aria-live="polite">
+              {status}
+            </p>
+          )}
           <div className="listing">
             {visible.map((supplier, index) => (
               <article className="supplier-card" key={supplier.id}>
                 <div className="swatch" style={{ background: swatch(index) }}>
-                  <button className={`save ${supplier.saved ? "on" : ""}`} aria-label="Save supplier" onClick={() => toggleSave(supplier.id)}>
+                  <button
+                    type="button"
+                    className={`save ${supplier.saved ? "on" : ""}`}
+                    aria-label="Save supplier"
+                    disabled={savingId === supplier.id}
+                    onClick={() => toggleSave(supplier.id)}
+                  >
                     <Heart size={16} fill={supplier.saved ? "currentColor" : "none"} />
                   </button>
                 </div>

@@ -74,18 +74,23 @@ export function RequestAccessClient() {
     if (!validateStep()) return;
     setBusy(true);
     setMessage("");
-    const response = await fetch("/api/request-access", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
-    const json = await response.json();
-    setBusy(false);
-    if (!json.ok) {
-      setMessage(json.error ?? "Something went wrong.");
-      return;
+    try {
+      const response = await fetch("/api/request-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
+      const json = await response.json();
+      if (!response.ok || !json.ok) {
+        setMessage(json.error ?? "Something went wrong.");
+        return;
+      }
+      setDone(true);
+    } catch {
+      setMessage("Could not submit request. Please check your connection and try again.");
+    } finally {
+      setBusy(false);
     }
-    setDone(true);
   }
 
   return (
@@ -149,9 +154,13 @@ export function RequestAccessClient() {
                   </div>
                 </>
               )}
-              {message && <p className="notice" style={{ color: "var(--risk)" }}>{message}</p>}
+              {message && <p className="notice" style={{ color: "var(--risk)" }} role="status" aria-live="polite">{message}</p>}
               <div className="actions">
-                {step > 0 && <button className="btn btn-ghost-lt" onClick={() => setStep((s) => s - 1)}>Back</button>}
+                {step > 0 && (
+                  <button type="button" className="btn btn-ghost-lt" onClick={() => setStep((s) => s - 1)}>
+                    Back
+                  </button>
+                )}
                 {step < 2 ? (
                   <button className="btn btn-gold" type="button" onClick={() => validateStep(step + 1)}>Continue</button>
                 ) : (
@@ -202,7 +211,12 @@ function OptionGroup({
       <label>{title}</label>
       <div className="chip-row">
         {options.map((option) => (
-          <button key={option} className={`chip ${selected.includes(option) ? "on" : ""}`} onClick={() => onToggle(option)}>
+          <button
+            key={option}
+            type="button"
+            className={`chip ${selected.includes(option) ? "on" : ""}`}
+            onClick={() => onToggle(option)}
+          >
             {option}
           </button>
         ))}

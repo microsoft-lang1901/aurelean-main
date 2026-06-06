@@ -1,4 +1,4 @@
-import { cleanString, ensureMutationAllowed, fail, ok, readJson } from "@/lib/api";
+import { cleanString, ensureMutationAllowed, fail, isRateLimited, ok, readJson } from "@/lib/api";
 import { createSampleRequest, getSupplier } from "@/lib/store";
 
 type Payload = {
@@ -15,6 +15,10 @@ export async function POST(
   try {
     const authFailure = ensureMutationAllowed(request, "sample request");
     if (authFailure) return authFailure;
+
+    if (isRateLimited(request, "sample-request", 30, 60_000)) {
+      return fail("Too many sample requests. Please wait and try again.", 429, "rate_limited");
+    }
 
     const { id } = await context.params;
     const supplier = await getSupplier(id);

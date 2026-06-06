@@ -8,7 +8,11 @@ export function SupplierClient({ supplier }: { supplier: Supplier }) {
   const [saved, setSaved] = useState(supplier.saved);
   const [rfqDone, setRfqDone] = useState("");
   const [sampleDone, setSampleDone] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [rfqBusy, setRfqBusy] = useState(false);
+  const [sampleBusy, setSampleBusy] = useState(false);
+  const [saveBusy, setSaveBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [formError, setFormError] = useState("");
   const [form, setForm] = useState({
     material: supplier.material,
     quantity: supplier.moq.replace("m", " m"),
@@ -21,35 +25,87 @@ export function SupplierClient({ supplier }: { supplier: Supplier }) {
   }
 
   async function toggleSave() {
-    const response = await fetch(`/api/suppliers/${supplier.id}/save`, { method: "POST" });
-    const json = await response.json();
-    if (json.ok) setSaved(json.data.saved);
+    if (saveBusy) return;
+    setSaveBusy(true);
+    setError("");
+    setFormError("");
+    try {
+      const response = await fetch(`/api/suppliers/${supplier.id}/save`, { method: "POST" });
+      const json = await response.json();
+      if (json.ok) {
+        setSaved(json.data.saved);
+      } else {
+        setError(json.error ?? "Could not save supplier.");
+      }
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setSaveBusy(false);
+    }
   }
 
   async function submitRfq() {
-    setBusy(true);
+    setFormError("");
+    if (!form.quantity.trim() || !form.targetDelivery.trim()) {
+      setFormError("Quantity and target delivery are required to send an RFQ.");
+      return;
+    }
+    if (rfqBusy) return;
+
+    setRfqBusy(true);
     setSampleDone("");
-    const response = await fetch("/api/rfqs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ supplierId: supplier.id, ...form })
-    });
-    const json = await response.json();
-    setBusy(false);
-    if (json.ok) setRfqDone(`${json.data.id} sent to ${supplier.name}.`);
-    else setRfqDone(json.error ?? "Could not send RFQ.");
+    setError("");
+    try {
+      const response = await fetch("/api/rfqs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ supplierId: supplier.id, ...form })
+      });
+      const json = await response.json();
+      if (json.ok) {
+        setRfqDone(`${json.data.id} sent to ${supplier.name}.`);
+      } else {
+        setError(json.error ?? "Could not send RFQ.");
+        setRfqDone("");
+      }
+    } catch {
+      setError("Network error. Please try again.");
+      setRfqDone("");
+    } finally {
+      setRfqBusy(false);
+    }
   }
 
   async function requestSample() {
+    setFormError("");
+    if (!form.quantity.trim()) {
+      setFormError("Quantity is required to request a sample.");
+      return;
+    }
+    if (sampleBusy) return;
+
+    setSampleBusy(true);
+    setError("");
     setRfqDone("");
-    const response = await fetch(`/api/suppliers/${supplier.id}/sample`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
-    const json = await response.json();
-    if (json.ok) setSampleDone("Sample request recorded.");
-    else setSampleDone(json.error ?? "Could not request sample.");
+    try {
+      const response = await fetch(`/api/suppliers/${supplier.id}/sample`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
+      const json = await response.json();
+      if (json.ok) {
+        setSampleDone("Sample request recorded.");
+      } else {
+        setError(json.error ?? "Could not request sample.");
+        setSampleDone("");
+      }
+    } catch {
+      setError("Network error. Please try again.");
+      setSampleDone("");
+    } finally {
+      setSampleBusy(false);
+    }
   }
 
   return (
@@ -58,7 +114,7 @@ export function SupplierClient({ supplier }: { supplier: Supplier }) {
         <div>
           <div className="image-panel panel" style={{ background: "url('/assets/landing/interior-hero.png') center/cover" }} />
           <div style={{ marginTop: 30 }}>
-            <div className="kicker">{supplier.city}, {supplier.country} · {supplier.countryCode}</div>
+            <div className="kicker">{supplier.city}, {supplier.country} - {supplier.countryCode}</div>
             <h1 className="h-xl" style={{ marginTop: 12 }}>{supplier.name}</h1>
             <div className="chip-row" style={{ marginTop: 16 }}>
               {supplier.certifications.map((cert) => <span className="chip" key={cert}>{cert}</span>)}
@@ -102,16 +158,30 @@ export function SupplierClient({ supplier }: { supplier: Supplier }) {
             <label htmlFor="rfq-specifications" style={{ color: "var(--on-dk-dim)" }}>Specifications</label>
             <textarea id="rfq-specifications" className="textarea" value={form.specifications} onChange={(e) => setValue("specifications", e.target.value)} placeholder="Colourways, finish, certifications, sampling needs..." />
           </div>
-          <button className="btn btn-gold" style={{ width: "100%", marginTop: 18 }} onClick={submitRfq} disabled={busy}>
-            {busy ? "Sending..." : "Send RFQ"}
+          <button type="button" className="btn btn-gold" style={{ width: "100%", marginTop: 18 }} onClick={submitRfq} disabled={rfqBusy}>
+            {rfqBusy ? "Sending..." : "Send RFQ"}
           </button>
           <div className="actions">
-            <button className="btn btn-ghost-dk" onClick={toggleSave}>{saved ? "Saved" : "Save mill"}</button>
-            <button className="btn btn-ghost-dk" onClick={requestSample}>Request sample</button>
+            <button type="button" className="btn btn-ghost-dk" onClick={toggleSave} disabled={saveBusy}>
+              {saveBusy ? "Saving..." : saved ? "Saved" : "Save mill"}
+            </button>
+            <button type="button" className="btn btn-ghost-dk" onClick={requestSample} disabled={sampleBusy || rfqBusy}>
+              {sampleBusy ? "Requesting sample..." : "Request sample"}
+            </button>
           </div>
+          {formError && (
+            <div className="notice" style={{ marginTop: 18 }} role="status" aria-live="polite">
+              {formError}
+            </div>
+          )}
           {(rfqDone || sampleDone) && (
-            <div className="notice" style={{ marginTop: 18 }}>
+            <div className="notice" style={{ marginTop: 18 }} role="status" aria-live="polite">
               <CheckCircle2 size={17} /> {rfqDone || sampleDone}
+            </div>
+          )}
+          {error && (
+            <div className="notice" style={{ marginTop: 18 }} role="status" aria-live="assertive">
+              {error}
             </div>
           )}
         </aside>
@@ -128,5 +198,4 @@ function Metric({ value, label }: { value: string; label: string }) {
     </div>
   );
 }
-
 

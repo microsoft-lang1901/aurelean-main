@@ -1,4 +1,4 @@
-import { cleanString, ensureMutationAllowed, fail, ok, readJson } from "@/lib/api";
+import { cleanString, ensureMutationAllowed, fail, isRateLimited, ok, readJson } from "@/lib/api";
 import { createRfq, listBids, listRfqs, listSuppliers } from "@/lib/store";
 
 type Payload = {
@@ -18,6 +18,10 @@ export async function POST(request: Request) {
   try {
     const authFailure = ensureMutationAllowed(request, "RFQ creation");
     if (authFailure) return authFailure;
+
+    if (isRateLimited(request, "rfq-create", 25, 60_000)) {
+      return fail("Too many RFQ requests. Please wait and try again.", 429, "rate_limited");
+    }
 
     const body = await readJson<Payload>(request);
     const supplierId = cleanString(body.supplierId, 80);
