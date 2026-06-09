@@ -27,7 +27,7 @@ The API and persistence layer is stable and resilient for demo intake: request v
 - **Environment variables:** `DATABASE_URL`, `OPENAI_*`, `NVIDIA_NIM_*`, `RENDER_ENDPOINT`, `CONTENT_AGENTS_ENDPOINT`, `CONTENT_AGENTS_API_KEY`, `SIMREADY_PYTHON_RUNTIME`, `AURELEAN_REQUIRE_AUTH`, `AURELEAN_API_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
 - **Reset controls:** `/api/reset` is POST-only, disabled by default, token-protected when enabled, and intended only for controlled demo-state recovery.
 - **Testing/build setup:** `npm run lint`, `npm run build`, `npm run test:smoke`; no separate unit test suite or visual a11y suite today.
-- **Security automation:** GitHub Actions now includes CodeQL, dependency review for PRs, and high-severity npm audit checks.
+- **Security automation:** GitHub Actions now includes CodeQL, high-severity npm audit checks, and non-blocking dependency review for PRs. Dependency review requires GitHub Dependency Graph to be enabled on the repository.
 
 ## 3) Commands run
 - `npm run lint` — **pass**
