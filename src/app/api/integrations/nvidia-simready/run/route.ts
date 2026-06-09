@@ -1,4 +1,4 @@
-import { ensureMutationAllowed, fail, isRateLimited, ok } from "@/lib/api";
+import { ensureMutationAllowed, fail, isRateLimited, ok, serverError } from "@/lib/api";
 import { simReadyReadiness } from "@/lib/nvidia-simready";
 
 function hasRenderInputs() {
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         message: "SimReady rerun requested. A run artifact refresh workflow should be executed by the configured pipeline service."
       })
     );
-  } catch {
-    return fail("Failed to request SimReady rerun.");
+  } catch (error) {
+    return serverError(error, "Failed to request SimReady rerun.", "simready_rerun_failed");
   }
 }

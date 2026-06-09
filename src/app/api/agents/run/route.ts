@@ -1,4 +1,4 @@
-import { ensureMutationAllowed, fail, isRateLimited, ok, parseValidatedJson } from "@/lib/api";
+import { ensureMutationAllowed, fail, isRateLimited, ok, parseValidatedJson, serverError } from "@/lib/api";
 import { runAureleanAgent } from "@/lib/aurelean-agent";
 import { agentRunSchema } from "@/lib/validation";
 
@@ -33,6 +33,6 @@ export async function POST(request: Request) {
 
     return Response.json(ok(response));
   } catch (error) {
-    return fail(error instanceof Error ? error.message : "Agent run failed.");
+    return serverError(error, "Agent run failed.", "agent_run_failed");
   }
 }

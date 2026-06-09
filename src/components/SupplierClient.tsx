@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import type { Supplier } from "@/types/aurelean";
@@ -134,6 +135,9 @@ export function SupplierClient({ supplier }: { supplier: Supplier }) {
                 <span>Lead {supplier.leadTimeWeeks} wk</span>
                 <span>Tier {supplier.tier}</span>
               </div>
+              <Link className="text-link" href={`/fabrics/${supplier.id}`}>
+                Open fabric intelligence
+              </Link>
             </div>
           </div>
         </div>

@@ -5,13 +5,33 @@ const defaultMaxJsonBytes = 32_000;
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 const requireAuthForMutations = process.env.AURELEAN_REQUIRE_AUTH === "true";
 const apiMutationToken = process.env.AURELEAN_API_TOKEN;
+const resetEnabled = process.env.AURELEAN_ENABLE_RESET === "true";
+
+function codeForStatus(status: number) {
+  if (status === 400) return "bad_request";
+  if (status === 401) return "unauthorized";
+  if (status === 403) return "forbidden";
+  if (status === 404) return "not_found";
+  if (status === 409) return "conflict";
+  if (status === 413) return "payload_too_large";
+  if (status === 422) return "invalid_payload";
+  if (status === 429) return "rate_limited";
+  if (status >= 500) return "server_error";
+  return "request_failed";
+}
 
 export function ok<T>(data: T): ApiResult<T> {
   return { ok: true, data };
 }
 
-export function fail(error: string, status = 400, code?: string) {
-  return Response.json({ ok: false, error, code }, { status });
+export function fail(error: string, status = 400, code = codeForStatus(status)) {
+  return Response.json({ ok: false, error, code, status }, { status });
+}
+
+export function serverError(error: unknown, fallback: string, code = "server_error") {
+  const detail = error instanceof Error ? error.message : String(error ?? "Unknown error");
+  console.error(`[api:${code}] ${detail}`);
+  return fail(fallback, 500, code);
 }
 
 export async function readJson<T>(request: Request, maxBytes = defaultMaxJsonBytes): Promise<T> {
@@ -20,11 +40,12 @@ export async function readJson<T>(request: Request, maxBytes = defaultMaxJsonByt
     throw new Error("Request body is too large.");
   }
 
+  const body = await request.text();
+  if (Buffer.byteLength(body, "utf8") > maxBytes) {
+    throw new Error("Request body is too large.");
+  }
+
   try {
-    const body = await request.text();
-    if (Buffer.byteLength(body, "utf8") > maxBytes) {
-      throw new Error("Request body is too large.");
-    }
     return JSON.parse(body) as T;
   } catch {
     throw new Error("Invalid JSON payload.");
@@ -123,6 +144,29 @@ export function ensureMutationAllowed(request: Request, operation = "mutation") 
   return null;
 }
 
+export function ensureResetAllowed(request: Request) {
+  if (!resetEnabled) {
+    return fail("Reset endpoint is disabled.", 403, "reset_disabled");
+  }
+
+  if (!apiMutationToken) {
+    return fail("Reset endpoint requires AURELEAN_API_TOKEN.", 500, "auth_token_missing");
+  }
+
+  const headerToken = request.headers.get("x-aurelean-api-token");
+  const authorization = request.headers.get("authorization") || "";
+  const bearerToken = authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : "";
+  const token = headerToken || bearerToken;
+
+  if (!token) {
+    return fail("Missing API token for reset.", 401, "missing_api_token");
+  }
+  if (token !== apiMutationToken) {
+    return fail("Invalid API token.", 403, "invalid_api_token");
+  }
+  return null;
+}
+
 export function safePublicState() {
   return {
     mode: process.env.VERCEL && !process.env.SUPABASE_SERVICE_ROLE_KEY ? "ephemeral-demo" : "persistent",
@@ -131,6 +175,7 @@ export function safePublicState() {
     nvidiaNimConfigured: Boolean(process.env.NVIDIA_NIM_BASE_URL && process.env.NVIDIA_NIM_API_KEY),
     renderConfigured: Boolean(process.env.RENDER_ENDPOINT),
     contentAgentsConfigured: Boolean(process.env.CONTENT_AGENTS_ENDPOINT && process.env.CONTENT_AGENTS_API_KEY),
-    mutationAuthRequired: requireAuthForMutations
+    mutationAuthRequired: requireAuthForMutations,
+    resetEnabled
   };
 }

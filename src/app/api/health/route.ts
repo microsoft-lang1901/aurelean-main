@@ -1,4 +1,4 @@
-import { fail, ok, safePublicState } from "@/lib/api";
+import { ok, safePublicState, serverError } from "@/lib/api";
 
 export async function GET() {
   try {
@@ -9,10 +9,6 @@ export async function GET() {
       })
     );
   } catch (error) {
-    return fail(
-      error instanceof Error ? error.message : "Unable to read backend health state.",
-      500,
-      "health_read_failed"
-    );
+    return serverError(error, "Unable to read backend health state.", "health_read_failed");
   }
 }

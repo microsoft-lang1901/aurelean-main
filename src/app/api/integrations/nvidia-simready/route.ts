@@ -1,4 +1,4 @@
-import { fail, ok } from "@/lib/api";
+import { ok, serverError } from "@/lib/api";
 import { simReadyPipelineSummary, simReadyReadiness } from "@/lib/nvidia-simready";
 
 export async function GET() {
@@ -10,10 +10,6 @@ export async function GET() {
       })
     );
   } catch (error) {
-    return fail(
-      error instanceof Error ? error.message : "Unable to read NVIDIA readiness data.",
-      500,
-      "nvidia_pipeline_read_failed"
-    );
+    return serverError(error, "Unable to read NVIDIA readiness data.", "nvidia_pipeline_read_failed");
   }
 }

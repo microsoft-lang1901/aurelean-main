@@ -8,6 +8,7 @@ import type {
   AccessRequest,
   AureleanState,
   Bid,
+  Fabric,
   MemoryEntry,
   Rfq,
   SampleRequest,
@@ -116,12 +117,65 @@ export async function updateState<T>(
   return result;
 }
 
+export async function resetState() {
+  const fresh = cloneState(initialState);
+  const client = getSupabase();
+
+  if (client) await writeSupabaseState(client, fresh);
+  else if (process.env.VERCEL) memoryState = fresh;
+  else await writeFileState(fresh);
+
+  return getPublicState();
+}
+
 export async function listSuppliers() {
   return (await getState()).suppliers;
 }
 
 export async function getSupplier(id: string) {
   return (await listSuppliers()).find((supplier) => supplier.id === id) ?? null;
+}
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function supplierToFabric(supplier: Supplier): Fabric {
+  return {
+    id: supplier.id,
+    slug: slugify(supplier.material),
+    material: supplier.material,
+    category: supplier.category,
+    supplierId: supplier.id,
+    supplierName: supplier.name,
+    country: supplier.country,
+    countryCode: supplier.countryCode,
+    city: supplier.city,
+    moq: supplier.moq,
+    leadTimeWeeks: supplier.leadTimeWeeks,
+    tier: supplier.tier,
+    verified: supplier.verified,
+    reliability: supplier.reliability,
+    capabilityTier: supplier.capabilityTier,
+    certifications: supplier.certifications,
+    overview: supplier.overview
+  };
+}
+
+export async function listFabrics() {
+  return (await listSuppliers()).map(supplierToFabric);
+}
+
+export async function getFabric(idOrSlug: string) {
+  const normalized = slugify(idOrSlug);
+  return (
+    (await listFabrics()).find(
+      (fabric) => fabric.id === idOrSlug || fabric.slug === normalized
+    ) ?? null
+  );
 }
 
 export async function toggleSupplierSaved(id: string) {
