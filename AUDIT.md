@@ -10,28 +10,36 @@ The API and persistence layer is stable and resilient for demo intake: request v
 
 ### Top 5 risks / opportunities
 1. **Production credential posture:** `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`/NVIDIA keys, and `AURELEAN_REQUIRE_AUTH` are configuration choices that must be finalized before enterprise onboarding.
-2. **NVIDIA rerun completeness:** Render/content-agent prerequisites are still missing for full CAD-to-SimReady reruns (`RENDER_ENDPOINT`, `CONTENT_AGENTS_*`).
-3. **Pipeline blockers:** Current asset report still includes unresolved conformance blockers (`RB.MB.001`, `GSP.001`, `NP.003`, `RB.001`).
-4. **Governance messaging:** Demo/public state should remain clearly labeled in high-signal locations.
+2. **Reset endpoint posture:** `/api/reset` now exists for controlled demo-state recovery, but remains disabled unless `AURELEAN_ENABLE_RESET=true` and `AURELEAN_API_TOKEN` are configured.
+3. **NVIDIA rerun completeness:** Render/content-agent prerequisites are still missing for full CAD-to-SimReady reruns (`RENDER_ENDPOINT`, `CONTENT_AGENTS_*`).
+4. **Pipeline blockers:** Current asset report still includes unresolved conformance blockers (`RB.MB.001`, `GSP.001`, `NP.003`, `RB.001`).
 5. **Test depth:** No visual regression/a11y automation is currently enforced in CI beyond route-level functional smoke checks.
 
 ## 2) Project architecture overview
 - **Framework:** Next.js 16.2.7 App Router (React 19, TypeScript).
 - **Routing model:** `src/app/*` for pages; `src/app/api/*` for JSON API routes; compatibility aliases for legacy paths (`/dashboard`, `/signin`, `/sign-in`, `/login`, `/agent`, `/developer`).
 - **Frontend structure:** shared shell/navigation/footer in `src/components/SiteChrome.tsx`; client workflow surfaces in feature components (trade, supplier, workspace, request-access, NVIDIA rerun client).
+- **Fabric routing:** `/fabrics/[id]` is scaffolded as a derived fabric/material detail route backed by supplier material data, accepting both supplier ids and material slugs.
 - **Backend/API structure:** validation and parsing in `src/lib/validation.ts` + `src/lib/api.ts`; state orchestration in `src/lib/store.ts`; deterministic LLM paths and action orchestration in `src/lib/assistant.ts` and `src/lib/aurelean-agent.ts`.
 - **Persistence:** Supabase `public.app_state` when credentials exist; local JSON fallback (`data/aurelean-db.json`) for dev and `Vercel`-runtime in-memory fallback.
+- **Phase 2 normalized schema:** `prisma/schema.prisma` defines the Supabase/PostgreSQL normalized target with 14 models and 5 enums. Field names on migrated data models match current `aurelean-db.json` keys for direct Phase 2 mapping.
 - **Auth/session model:** no user sessions in current MVP; workspace is intentionally public demo. Optional hardening via `AURELEAN_REQUIRE_AUTH=true` + `AURELEAN_API_TOKEN`.
-- **Environment variables:** `OPENAI_*`, `NVIDIA_NIM_*`, `RENDER_ENDPOINT`, `CONTENT_AGENTS_ENDPOINT`, `CONTENT_AGENTS_API_KEY`, `SIMREADY_PYTHON_RUNTIME`, `AURELEAN_REQUIRE_AUTH`, `AURELEAN_API_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
+- **Environment variables:** `DATABASE_URL`, `OPENAI_*`, `NVIDIA_NIM_*`, `RENDER_ENDPOINT`, `CONTENT_AGENTS_ENDPOINT`, `CONTENT_AGENTS_API_KEY`, `SIMREADY_PYTHON_RUNTIME`, `AURELEAN_REQUIRE_AUTH`, `AURELEAN_API_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
+- **Reset controls:** `/api/reset` is POST-only, disabled by default, token-protected when enabled, and intended only for controlled demo-state recovery.
 - **Testing/build setup:** `npm run lint`, `npm run build`, `npm run test:smoke`; no separate unit test suite or visual a11y suite today.
+- **Security automation:** GitHub Actions now includes CodeQL, dependency review for PRs, and high-severity npm audit checks.
 
 ## 3) Commands run
 - `npm run lint` — **pass**
-- `npm run build` — **pass**
-- `npm run test:smoke` (local `http://127.0.0.1:3000`) — **pass**
+- `npm run build` — **pass** (one earlier run failed because a local `next start` process had locked a `.next` log file; passed after stopping that process)
+- `npm run test:smoke` (local `http://127.0.0.1:3101`) — **pass**
+- `npm exec --yes --package prisma -- prisma validate --schema prisma/schema.prisma` with temporary non-secret local `DATABASE_URL` — **pass**
+- Local schema parity check — **pass** (`14` models, `5` enums, all current JSON object keys present on matching Prisma models)
+- `npm audit --audit-level=high` — **pass**; npm reports moderate PostCSS advisories via Next, but the suggested force fix would downgrade Next and was not applied.
 - `npx vercel --prod` — **pass**
 - `SMOKE_BASE_URL=https://aurelean-main.vercel.app npm run test:smoke` — **pass**
-- No blocking command failures.
+- Current pass added checks for `/api/reset` default rejection and normalized oversized payload errors.
+- Current pass also added `/fabrics/cerruti` and `/fabrics/super-150s-worsted-wool` smoke coverage.
 
 ## 4) Design audit findings
 
@@ -87,10 +95,17 @@ The API and persistence layer is stable and resilient for demo intake: request v
   - **Implemented:** Yes.
 
 - **Issue:** Strong schema + payload limits for all write paths.
-  - **Evidence:** malformed input and oversized payload tests pass through `parseValidatedJson` and zod schemas.
+  - **Evidence:** malformed input and oversized payload tests pass through `parseValidatedJson` and zod schemas; oversized payloads return `413` with normalized `ok/error/code/status`.
   - **Impact:** Reduced injection and abuse vectors.
   - **Fix:** Centralized validation and smoke checks across malformed payloads.
   - **Files/areas:** `src/lib/validation.ts`, `src/lib/api.ts`, `scripts/smoke-test.mjs`.
+  - **Implemented:** Yes.
+
+- **Issue:** Demo state reset needed a protected operational path without exposing destructive mutation publicly.
+  - **Evidence:** `/api/reset` returns `403 reset_disabled` by default and requires `AURELEAN_ENABLE_RESET=true` plus `AURELEAN_API_TOKEN` when enabled.
+  - **Impact:** Allows controlled demo recovery while preventing accidental public reset in production.
+  - **Fix:** Added POST-only guarded reset route and centralized reset authorization helper.
+  - **Files/areas:** `src/app/api/reset/route.ts`, `src/lib/api.ts`, `src/lib/store.ts`, `.env.example`, `scripts/smoke-test.mjs`.
   - **Implemented:** Yes.
 
 ### Medium
@@ -117,13 +132,20 @@ The API and persistence layer is stable and resilient for demo intake: request v
 - Added/verified complete integration page map and footer links for NVIDIA + resources (`src/components/SiteChrome.tsx`, `src/app/integrations/page.tsx`, `src/app/integrations/nvidia/page.tsx`, `src/app/integrations/nvidia-simready/page.tsx`).
 - Added/verified compatibility redirects for dashboard/sign-in/agent/dev entry points (`src/app/dashboard/page.tsx`, `src/app/signin/page.tsx`, `src/app/sign-in/page.tsx`, `src/app/login/page.tsx`, `src/app/agent/page.tsx`, `src/app/developer/page.tsx`).
 - Added SimReady rerun guard behavior and health/read endpoints with safer failure envelopes (`src/app/api/integrations/nvidia-simready/run/route.ts`, `src/app/api/integrations/nvidia-simready/route.ts`, `src/app/api/health/route.ts`).
+- Added guarded `/api/reset` and normalized API error envelopes with `ok`, `error`, `code`, and `status` fields across validation and server-error paths (`src/app/api/reset/route.ts`, `src/lib/api.ts`, `src/lib/store.ts`).
+- Scaffolded `/fabrics/[id]` material detail pages from existing supplier intelligence, with marketplace and supplier-detail links into the new route (`src/app/fabrics/[id]/page.tsx`, `src/lib/store.ts`, `src/types/aurelean.ts`, `src/components/TradeClient.tsx`, `src/components/SupplierClient.tsx`).
+- Added Phase 2 Prisma schema/config for Supabase normalized persistence without running migrations (`prisma/schema.prisma`, `prisma.config.ts`, `.env.example`).
+- Added security headers, CodeQL/dependency-review/npm-audit workflows, smoke coverage for headers, and a repository security policy (`next.config.ts`, `.github/workflows/*`, `SECURITY.md`, `scripts/smoke-test.mjs`).
 - Hardened workspace/demo clarity in UI copy (`src/components/WorkspaceClient.tsx`, `src/app/ai-agent/page.tsx`, `src/app/security/page.tsx`, `src/app/privacy/page.tsx`).
 - Audited and updated smoke test fixture/route assertions in `scripts/smoke-test.mjs`.
 - Refreshed this `AUDIT.md` to align with completed implementation and new deployment URL.
 
 ## 7) Remaining risks and follow-up tasks
 - Decide production mutation policy and enforce guardrails (`AURELEAN_REQUIRE_AUTH=true`) as required.
+- Enable `AURELEAN_ENABLE_RESET=true` only in controlled demo environments with `AURELEAN_API_TOKEN`; keep it disabled for normal production intake.
 - Configure production Supabase + secrets and ensure app_state migrations are applied.
+- Review the Phase 2 Prisma schema with the migration script before moving data out of `app_state`; no data migration was run in this pass.
+- Track the current moderate PostCSS advisory through Next and upgrade Next when a non-breaking patched release is available.
 - Configure NVIDIA render/content-agent services and rerun CAD-to-SimReady pipeline to clear remaining blockers.
 - Add visual/a11y/keyboard checks and confidence metadata for fallback AI responses.
 

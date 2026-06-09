@@ -1,10 +1,14 @@
-import { ensureMutationAllowed, fail, isRateLimited, ok, parseValidatedJson } from "@/lib/api";
+import { ensureMutationAllowed, fail, isRateLimited, ok, parseValidatedJson, serverError } from "@/lib/api";
 import { rfqCreateSchema } from "@/lib/validation";
 import { createRfq, listBids, listRfqs, listSuppliers } from "@/lib/store";
 
 export async function GET() {
-  const [rfqs, bids] = await Promise.all([listRfqs(), listBids()]);
-  return Response.json(ok({ rfqs, bids }));
+  try {
+    const [rfqs, bids] = await Promise.all([listRfqs(), listBids()]);
+    return Response.json(ok({ rfqs, bids }));
+  } catch (error) {
+    return serverError(error, "Could not load RFQs.", "rfq_read_failed");
+  }
 }
 
 export async function POST(request: Request) {
@@ -37,6 +41,6 @@ export async function POST(request: Request) {
 
     return Response.json(ok(rfq));
   } catch (error) {
-    return fail(error instanceof Error ? error.message : "Could not create RFQ.");
+    return serverError(error, "Could not create RFQ.", "rfq_create_failed");
   }
 }

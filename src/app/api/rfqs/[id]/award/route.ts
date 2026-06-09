@@ -1,4 +1,4 @@
-import { ensureMutationAllowed, fail, isRateLimited, isSafeResourceId, ok, parseValidatedJson } from "@/lib/api";
+import { ensureMutationAllowed, fail, isRateLimited, isSafeResourceId, ok, parseValidatedJson, serverError } from "@/lib/api";
 import { awardSchema } from "@/lib/validation";
 import { awardBid, listBids, listRfqs } from "@/lib/store";
 
@@ -41,6 +41,6 @@ export async function POST(
     if (!bid) return fail("Bid not found.", 404, "bid_not_found");
     return Response.json(ok(bid));
   } catch (error) {
-    return fail(error instanceof Error ? error.message : "Could not award bid.");
+    return serverError(error, "Could not award bid.", "bid_award_failed");
   }
 }

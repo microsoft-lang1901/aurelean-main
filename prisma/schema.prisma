@@ -1,0 +1,300 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MaterialCategory {
+  wool
+  silk
+  cashmere
+  linen
+  cotton
+  technical
+}
+
+enum SupplierStage {
+  shortlisted
+  dialogue
+  sampling
+  approved
+}
+
+enum RfqStatus {
+  draft
+  sent
+  responded
+  sampling
+  closed
+}
+
+enum BidCurrency {
+  EUR
+  USD
+}
+
+enum MemoryKind {
+  Decision
+  Sample
+  Signal
+  Message
+  Spec
+  Request
+}
+
+model AppState {
+  id        String   @id
+  state     Json
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("app_state")
+}
+
+model Organization {
+  id             String          @id @default(cuid())
+  name           String
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @default(now()) @updatedAt @map("updated_at")
+  profiles       Profile[]
+  suppliers      Supplier[]
+  materials      Material[]
+  rfqs           Rfq[]
+  memories       MemoryEntry[]
+  accessRequests AccessRequest[]
+  sampleRequests SampleRequest[]
+  auditEvents    AuditEvent[]
+
+  @@map("organizations")
+}
+
+model Profile {
+  id             String        @id @default(cuid())
+  organizationId String        @map("organization_id")
+  email          String
+  firstName      String        @map("first_name")
+  lastName       String        @map("last_name")
+  role           String        @default("buyer")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @default(now()) @updatedAt @map("updated_at")
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  messages       RfqMessage[]
+  auditEvents    AuditEvent[]
+
+  @@unique([organizationId, email])
+  @@map("profiles")
+}
+
+model Supplier {
+  id              String                  @id
+  organizationId  String?                 @map("organization_id")
+  name            String
+  country         String
+  countryCode     String
+  city            String
+  category        MaterialCategory
+  material        String
+  moq             String
+  leadTimeWeeks   Int
+  tier            String
+  verified        Boolean                 @default(false)
+  reliability     Int
+  capabilityTier  String
+  stage           SupplierStage
+  saved           Boolean                 @default(false)
+  certifications  String[]
+  overview        String
+  featuredScore   Int
+  createdAt       DateTime                @default(now()) @map("created_at")
+  updatedAt       DateTime                @default(now()) @updatedAt @map("updated_at")
+  organization    Organization?           @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  materials       Material[]
+  rfqs            Rfq[]
+  bids            Bid[]
+  sampleRequests  SampleRequest[]
+  supplierCertifications SupplierCertification[]
+
+  @@index([category])
+  @@index([countryCode])
+  @@map("suppliers")
+}
+
+model Material {
+  id             String           @id @default(cuid())
+  organizationId String?          @map("organization_id")
+  supplierId     String
+  category       MaterialCategory
+  material       String
+  moq            String
+  leadTimeWeeks  Int
+  tier           String
+  verified       Boolean          @default(false)
+  reliability    Int
+  capabilityTier String
+  featuredScore  Int
+  overview       String
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @default(now()) @updatedAt @map("updated_at")
+  organization   Organization?    @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  supplier       Supplier         @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  @@unique([supplierId, material])
+  @@index([category])
+  @@map("materials")
+}
+
+model SupplierCertification {
+  id         String   @id @default(cuid())
+  supplierId String
+  value      String
+  createdAt  DateTime @default(now()) @map("created_at")
+  supplier   Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  @@unique([supplierId, value])
+  @@map("supplier_certifications")
+}
+
+model Rfq {
+  id             String        @id
+  organizationId String?       @map("organization_id")
+  supplierId     String
+  supplierName   String
+  material       String
+  quantity       String
+  status         RfqStatus
+  bidsReceived   Int
+  updatedAtLabel String
+  project        String
+  targetDelivery String
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @default(now()) @updatedAt @map("updated_at")
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  supplier       Supplier      @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  thread         RfqMessage[]
+  bids           Bid[]
+
+  @@index([supplierId])
+  @@index([status])
+  @@map("rfqs")
+}
+
+model RfqMessage {
+  id        String   @id @default(cuid())
+  rfqId     String
+  profileId String?  @map("profile_id")
+  author    String
+  initials  String
+  body      String
+  time      String
+  createdAt DateTime @default(now()) @map("created_at")
+  rfq       Rfq      @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  profile   Profile? @relation(fields: [profileId], references: [id], onDelete: SetNull)
+
+  @@index([rfqId])
+  @@map("messages")
+}
+
+model Bid {
+  id            String      @id
+  rfqId         String
+  supplierId    String
+  supplierName  String
+  countryCode   String
+  pricePerUnit  Decimal     @db.Decimal(12, 2)
+  currency      BidCurrency
+  leadTimeWeeks Int
+  moq           String
+  reliability   Int
+  bestValue     Boolean     @default(false)
+  awarded       Boolean     @default(false)
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @default(now()) @updatedAt @map("updated_at")
+  rfq           Rfq         @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  supplier      Supplier    @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+
+  @@index([rfqId])
+  @@index([supplierId])
+  @@map("bids")
+}
+
+model MemoryEntry {
+  id             String         @id
+  organizationId String?        @map("organization_id")
+  kind           MemoryKind
+  title          String
+  body           String
+  entities       String[]
+  time           String
+  group          String
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @default(now()) @updatedAt @map("updated_at")
+  organization   Organization?  @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  memoryEntities MemoryEntity[]
+
+  @@index([kind])
+  @@map("memory_entries")
+}
+
+model MemoryEntity {
+  id            String      @id @default(cuid())
+  memoryEntryId String
+  value         String
+  createdAt     DateTime    @default(now()) @map("created_at")
+  memoryEntry   MemoryEntry @relation(fields: [memoryEntryId], references: [id], onDelete: Cascade)
+
+  @@index([value])
+  @@map("memory_entities")
+}
+
+model AccessRequest {
+  id                String        @id
+  organizationId    String?       @map("organization_id")
+  firstName         String
+  lastName          String
+  email             String
+  company           String
+  procurementOwner  String
+  securityContact   String
+  sourcing          String[]
+  volume            String
+  layers            String[]
+  notes             String
+  createdAt         DateTime
+  organization      Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@map("access_requests")
+}
+
+model SampleRequest {
+  id             String        @id
+  organizationId String?       @map("organization_id")
+  supplierId     String
+  material       String
+  quantity       String
+  targetDelivery String
+  specifications String
+  createdAt      DateTime
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  supplier       Supplier      @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+
+  @@index([supplierId])
+  @@map("sample_requests")
+}
+
+model AuditEvent {
+  id             String        @id @default(cuid())
+  organizationId String?       @map("organization_id")
+  profileId      String?       @map("profile_id")
+  action         String
+  entityType     String        @map("entity_type")
+  entityId       String        @map("entity_id")
+  metadata       Json?
+  createdAt      DateTime      @default(now()) @map("created_at")
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  profile        Profile?      @relation(fields: [profileId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@map("audit_events")
+}

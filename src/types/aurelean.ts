@@ -23,6 +23,26 @@ export type Supplier = {
   featuredScore: number;
 };
 
+export type Fabric = {
+  id: string;
+  slug: string;
+  material: string;
+  category: string;
+  supplierId: string;
+  supplierName: string;
+  country: string;
+  countryCode: string;
+  city: string;
+  moq: string;
+  leadTimeWeeks: number;
+  tier: string;
+  verified: boolean;
+  reliability: number;
+  capabilityTier: string;
+  certifications: string[];
+  overview: string;
+};
+
 export type Rfq = {
   id: string;
   supplierId: string;
@@ -130,4 +150,4 @@ export type AgentRunData = {
 
 export type ApiResult<T> =
   | { ok: true; data: T }
-  | { ok: false; error: string; code?: string };
+  | { ok: false; error: string; code: string; status: number };

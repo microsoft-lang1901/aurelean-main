@@ -1,4 +1,4 @@
-import { fail, isRateLimited, ok, parseValidatedJson } from "@/lib/api";
+import { fail, isRateLimited, ok, parseValidatedJson, serverError } from "@/lib/api";
 import { memoryQuerySchema } from "@/lib/validation";
 import { answerMemoryQuestion } from "@/lib/assistant";
 import { findMemoryMatches, listMemory, listRfqs, listSuppliers } from "@/lib/store";
@@ -29,6 +29,6 @@ export async function POST(request: Request) {
 
     return Response.json(ok({ ...response, matches }));
   } catch (error) {
-    return fail(error instanceof Error ? error.message : "Could not query memory.");
+    return serverError(error, "Could not query memory.", "memory_query_failed");
   }
 }

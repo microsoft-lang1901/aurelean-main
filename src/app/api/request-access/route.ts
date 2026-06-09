@@ -1,4 +1,4 @@
-import { fail, isRateLimited, isWorkEmail, ok, parseValidatedJson } from "@/lib/api";
+import { fail, isRateLimited, isWorkEmail, ok, parseValidatedJson, serverError } from "@/lib/api";
 import { requestAccessSchema } from "@/lib/validation";
 import { createAccessRequest } from "@/lib/store";
 
@@ -36,6 +36,6 @@ export async function POST(request: Request) {
 
     return Response.json(ok(accessRequest));
   } catch (error) {
-    return fail(error instanceof Error ? error.message : "Could not create access request.");
+    return serverError(error, "Could not create access request.", "access_request_create_failed");
   }
 }

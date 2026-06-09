@@ -1,4 +1,4 @@
-import { ensureMutationAllowed, fail, isRateLimited, ok } from "@/lib/api";
+import { ensureMutationAllowed, fail, isRateLimited, ok, serverError } from "@/lib/api";
 import { idSchema } from "@/lib/validation";
 import { toggleSupplierSaved } from "@/lib/store";
 
@@ -24,6 +24,6 @@ export async function POST(
     if (!supplier) return fail("Supplier not found.", 404, "supplier_not_found");
     return Response.json(ok(supplier));
   } catch (error) {
-    return fail(error instanceof Error ? error.message : "Could not save supplier.");
+    return serverError(error, "Could not save supplier.", "supplier_save_failed");
   }
 }

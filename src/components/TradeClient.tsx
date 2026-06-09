@@ -139,6 +139,9 @@ export function TradeClient({ initialSuppliers }: { initialSuppliers: Supplier[]
                   <Link className="btn btn-ghost-lt" href={`/trade/${supplier.id}`} style={{ marginTop: 16, width: "100%" }}>
                     Open supplier
                   </Link>
+                  <Link className="text-link" href={`/fabrics/${supplier.id}`} style={{ marginTop: 12 }}>
+                    Open fabric
+                  </Link>
                 </div>
               </article>
             ))}

@@ -7,6 +7,8 @@ const pageChecks = [
   ["GET", "/platform"],
   ["GET", "/trade"],
   ["GET", "/trade/cerruti"],
+  ["GET", "/fabrics/cerruti"],
+  ["GET", "/fabrics/super-150s-worsted-wool"],
   ["GET", "/intelligence"],
   ["GET", "/workspace"],
   ["GET", "/ai-agent"],
@@ -56,6 +58,8 @@ const htmlAssertions = [
   ["/platform", "One operating layer for sourcing"],
   ["/trade", "Verified mills"],
   ["/trade/cerruti", "Lanificio Cerruti"],
+  ["/fabrics/cerruti", "Fabric intelligence"],
+  ["/fabrics/super-150s-worsted-wool", "Super 150s worsted wool"],
   ["/intelligence", "Supplier intelligence with memory"],
   ["/workspace", "Public demo workspace"],
   ["/ai-agent", "Agentic procurement with approval boundaries"],
@@ -72,8 +76,15 @@ const htmlAssertions = [
 ];
 
 const apiShapeChecks = [
-  ["/api/health", ["mode", "supabaseConfigured", "openAIConfigured", "mutationAuthRequired"]],
+  ["/api/health", ["mode", "supabaseConfigured", "openAIConfigured", "mutationAuthRequired", "resetEnabled"]],
   ["/api/integrations/nvidia-simready", ["status", "finalUsd", "stages"]]
+];
+
+const securityHeaderChecks = [
+  ["x-frame-options", "DENY"],
+  ["x-content-type-options", "nosniff"],
+  ["referrer-policy", "strict-origin-when-cross-origin"],
+  ["content-security-policy", "frame-ancestors 'none'"]
 ];
 
 const postChecks = [
@@ -114,6 +125,12 @@ const postChecks = [
 ];
 
 const negativeChecks = [
+  [
+    "POST",
+    "/api/reset",
+    {},
+    403
+  ],
   [
     "POST",
     "/api/request-access",
@@ -206,6 +223,20 @@ async function request(method, path, body = null, expectedStatus = null) {
   return response;
 }
 
+async function requestRaw(method, path, body, expectedStatus) {
+  const response = await fetch(`${base}${path}`, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body
+  });
+
+  if (response.status !== expectedStatus) {
+    const payload = await response.clone().text();
+    throw new Error(`${method} ${path} failed with ${response.status}; expected ${expectedStatus}. body: ${payload}`);
+  }
+  return response;
+}
+
 async function requestText(path) {
   const response = await request("GET", path);
   const contentType = response.headers.get("content-type") || "";
@@ -248,6 +279,17 @@ async function assertRedirect(path, expectedLocation) {
   console.log(`OK redirect ${path} -> ${expectedLocation}`);
 }
 
+async function assertSecurityHeaders(path) {
+  const response = await request("GET", path);
+  for (const [header, expected] of securityHeaderChecks) {
+    const actual = response.headers.get(header) || "";
+    if (!actual.includes(expected)) {
+      throw new Error(`${path} missing security header ${header}: expected ${expected}, got ${actual || "<empty>"}`);
+    }
+  }
+  console.log(`OK security headers ${path}`);
+}
+
 let bootstrapData = null;
 
 for (const [method, path] of pageChecks) {
@@ -270,6 +312,8 @@ for (const [method, path] of pageChecks) {
 for (const [path, expectedLocation] of redirectChecks) {
   await assertRedirect(path, expectedLocation);
 }
+
+await assertSecurityHeaders("/");
 
 for (const [path, expectedText] of htmlAssertions) {
   await assertHtmlContains(path, expectedText);
@@ -432,6 +476,11 @@ for (const [method, path, body, expectedStatus] of negativeChecks) {
   if (json.ok !== false) {
     throw new Error(`${method} ${path} expected rejection`);
   }
+  for (const key of ["error", "code", "status"]) {
+    if (!Object.hasOwn(json, key)) {
+      throw new Error(`${method} ${path} error response missing ${key}`);
+    }
+  }
   console.log(`OK ${method} ${path} rejected invalid input`);
 }
 
@@ -441,8 +490,35 @@ for (const [method, path, body, expectedStatus] of malformedChecks) {
   if (json.ok !== false) {
     throw new Error(`${method} ${path} expected validation failure`);
   }
+  for (const key of ["error", "code", "status"]) {
+    if (!Object.hasOwn(json, key)) {
+      throw new Error(`${method} ${path} error response missing ${key}`);
+    }
+  }
   console.log(`OK ${method} ${path} rejected malformed payload`);
 }
+
+const oversizedPayloadResponse = await requestRaw(
+  "POST",
+  "/api/request-access",
+  JSON.stringify({
+    firstName: "Smoke",
+    lastName: "Test",
+    email: "smoke@aurelean.example",
+    company: "Smoke Maison",
+    notes: "x".repeat(40_000)
+  }),
+  413
+);
+const oversizedPayload = await oversizedPayloadResponse.json();
+if (
+  oversizedPayload.ok !== false ||
+  oversizedPayload.code !== "payload_too_large" ||
+  oversizedPayload.status !== 413
+) {
+  throw new Error("Oversized payload response did not use the normalized 413 error envelope");
+}
+console.log("OK POST /api/request-access rejected oversized payload");
 
 
 

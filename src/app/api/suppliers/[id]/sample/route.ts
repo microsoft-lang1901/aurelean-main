@@ -1,4 +1,4 @@
-import { ensureMutationAllowed, fail, isRateLimited, ok, parseValidatedJson } from "@/lib/api";
+import { ensureMutationAllowed, fail, isRateLimited, ok, parseValidatedJson, serverError } from "@/lib/api";
 import { idSchema, supplierSampleSchema } from "@/lib/validation";
 import { createSampleRequest, getSupplier } from "@/lib/store";
 
@@ -38,6 +38,6 @@ export async function POST(
 
     return Response.json(ok(sample));
   } catch (error) {
-    return fail(error instanceof Error ? error.message : "Could not request sample.");
+    return serverError(error, "Could not request sample.", "sample_request_failed");
   }
 }
