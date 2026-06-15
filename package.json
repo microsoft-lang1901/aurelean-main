@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "validate:codex-agents": "node scripts/validate-codex-agents.js",
     "test:smoke": "node scripts/smoke-test.mjs"
   },
   "dependencies": {

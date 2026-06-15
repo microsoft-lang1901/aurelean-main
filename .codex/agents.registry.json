@@ -1,0 +1,36 @@
+{
+  "runtime": "codex",
+  "scope": "project",
+  "owner": "codebase",
+  "orchestrator": "codex-orchestrator",
+  "agents": [
+    { "name": "codex-orchestrator", "path": ".codex/agents/codex-orchestrator.md", "risk_level": "critical", "approval_required": true, "primary_workflow": "orchestration" },
+    { "name": "product-architecture-agent", "path": ".codex/agents/product-architecture-agent.md", "risk_level": "high", "approval_required": true, "primary_workflow": "product_architecture" },
+    { "name": "frontend-dashboard-agent", "path": ".codex/agents/frontend-dashboard-agent.md", "risk_level": "medium", "approval_required": false, "primary_workflow": "frontend_dashboard" },
+    { "name": "design-system-agent", "path": ".codex/agents/design-system-agent.md", "risk_level": "medium", "approval_required": false, "primary_workflow": "design_system" },
+    { "name": "intake-qualification-agent", "path": ".codex/agents/intake-qualification-agent.md", "risk_level": "high", "approval_required": true, "primary_workflow": "intake_qualification" },
+    { "name": "organization-verification-agent", "path": ".codex/agents/organization-verification-agent.md", "risk_level": "high", "approval_required": true, "primary_workflow": "organization_verification" },
+    { "name": "procurement-intelligence-agent", "path": ".codex/agents/procurement-intelligence-agent.md", "risk_level": "medium", "approval_required": false, "primary_workflow": "procurement_intelligence" },
+    { "name": "rfq-lifecycle-agent", "path": ".codex/agents/rfq-lifecycle-agent.md", "risk_level": "high", "approval_required": true, "primary_workflow": "rfq_lifecycle" },
+    { "name": "supplier-risk-agent", "path": ".codex/agents/supplier-risk-agent.md", "risk_level": "high", "approval_required": true, "primary_workflow": "supplier_risk" },
+    { "name": "quote-analysis-agent", "path": ".codex/agents/quote-analysis-agent.md", "risk_level": "high", "approval_required": true, "primary_workflow": "quote_analysis" },
+    { "name": "approval-governance-agent", "path": ".codex/agents/approval-governance-agent.md", "risk_level": "critical", "approval_required": true, "primary_workflow": "approval_governance" },
+    { "name": "client-communications-agent", "path": ".codex/agents/client-communications-agent.md", "risk_level": "high", "approval_required": true, "primary_workflow": "client_communications" },
+    { "name": "billing-entitlement-agent", "path": ".codex/agents/billing-entitlement-agent.md", "risk_level": "high", "approval_required": true, "primary_workflow": "billing_entitlement" },
+    { "name": "audit-evidence-agent", "path": ".codex/agents/audit-evidence-agent.md", "risk_level": "high", "approval_required": true, "primary_workflow": "audit_evidence" },
+    { "name": "security-tenant-agent", "path": ".codex/agents/security-tenant-agent.md", "risk_level": "critical", "approval_required": true, "primary_workflow": "security_tenant" },
+    { "name": "live-services-agent", "path": ".codex/agents/live-services-agent.md", "risk_level": "critical", "approval_required": true, "primary_workflow": "live_services" },
+    { "name": "qa-validation-agent", "path": ".codex/agents/qa-validation-agent.md", "risk_level": "medium", "approval_required": false, "primary_workflow": "qa_validation" },
+    { "name": "documentation-prd-agent", "path": ".codex/agents/documentation-prd-agent.md", "risk_level": "medium", "approval_required": false, "primary_workflow": "documentation_prd" }
+  ],
+  "approval_policy": {
+    "high_requires_approval": true,
+    "critical_requires_approval": true,
+    "self_approval_allowed": false,
+    "production_mutation_allowed": false,
+    "client_delivery_without_review_allowed": false,
+    "supplier_delivery_without_review_allowed": false,
+    "tier_1_access_without_review_allowed": false,
+    "supplier_award_without_review_allowed": false
+  }
+}

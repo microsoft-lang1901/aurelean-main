@@ -76,6 +76,8 @@ Browser verification should cover:
 
 `POST /api/memory/query` can use OpenAI-compatible inference endpoints. For NVIDIA-accelerated enterprise deployment paths, set `NVIDIA_NIM_BASE_URL`, `NVIDIA_NIM_API_KEY`, and `NVIDIA_NIM_MODEL` to route supported memory inference through a NIM-compatible endpoint.
 
+Project-level Codex Orchestrator and sub-agents are defined in `.codex/agents/` and governed by `docs/agents/CODEX-SUBAGENTS.md`.
+
 ## NVIDIA CAD-to-SimReady Integration
 
 `GET /api/integrations/nvidia-simready` exposes the latest known CAD-to-SimReady pipeline status for client intake. The current `minimal_mesh.stl` run passed conversion, minimum USD, Omniverse asset validation, geometry validation, and physics validation. SimReady profile validation and rendering remain blocked pending richer simulation evidence and deployment credentials.
