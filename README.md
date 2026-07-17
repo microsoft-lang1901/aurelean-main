@@ -126,3 +126,19 @@ When `AURELEAN_REQUIRE_AUTH=true`, mutate routes (`/api/rfqs`, `/api/suppliers/{
 - `Authorization: Bearer <AURELEAN_API_TOKEN>` header
 
 Push to GitHub, import into Vercel, add env vars, and deploy.
+
+
+<!-- portfolio-maintenance-20260717:readme:start -->
+## Repository Documentation
+
+The `2026-07-17` maintenance snapshot records the repository at `b71876271170597deda65cf7e0d0274cc8bc8a5d` without changing runtime behavior:
+
+- [Project status](docs/PROJECT_STATUS.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Setup](docs/SETUP.md)
+- [Operations](docs/OPERATIONS.md)
+- [Asset manifest](docs/ASSET_MANIFEST.md)
+- [Changelog](CHANGELOG.md)
+
+Supplier, procurement, provider, and production claims require governed evidence and credentials.
+<!-- portfolio-maintenance-20260717:readme:end -->
